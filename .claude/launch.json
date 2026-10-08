@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "consumer-capture",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "EXPO_PUBLIC_API_URL=http://localhost:8899/api",
+        "npm",
+        "--prefix",
+        "/Users/minho/Desktop/ownd.2차",
+        "run",
+        "web",
+        "-w",
+        "@ownd/consumer",
+        "--",
+        "--port",
+        "8083"
+      ],
+      "port": 8083
+    },
+    {
+      "name": "intro-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5180
+    }
+  ]
+}
