@@ -19,7 +19,7 @@ npm run build      # dist/ 정적 파일
 | `src/story.ts` | 1440×1440 논리 좌표의 연출 무대. `seek(t)`가 시간만으로 모든 스타일을 계산해요 |
 | `src/glass.ts` | 리퀴드 글래스(장면 복제 + 거리장 변위 맵 + 채널별 변위 3개), 글자 유리, goo 필터 |
 | `src/iris.ts` | 6날 조리개(짧은 호만 사용) |
-| `src/controller.ts` | 자동 재생(화면 밖·탭 숨김이면 멈춤), 일시정지·다시 보기, 장 이동, 세대 번호로 늦게 끝난 프레임 차단 |
+| `src/controller.ts` | OS의 동작 줄이기 설정과 관계없이 자동 재생(화면 밖·탭 숨김이면 멈춤), 장 이동, 세대 번호로 늦게 끝난 프레임 차단. 재생·일시정지·다시 보기 버튼 없음 |
 | `src/start.ts` | “시작하기” 버튼 연결 주소(`START_LINKS`: web·ios·android). 비어 있으면 ‘준비 중/출시 전’ 안내만 해요 |
 | `tools/captureApp.mjs` | 본 프로젝트 소비자 앱을 로컬에서 띄운 뒤 화면 캡처 |
 | `tools/verify.mjs` | Playwright 검증(레이아웃·내비·54비트 프레임·결정론·급변·동작 줄이기·외부 요청·비밀값·대비) |
@@ -45,6 +45,8 @@ npm run build      # dist/ 정적 파일
 ## 검증
 
 개발 서버를 띄운 상태에서 `npm run verify` → `verify-output/report.md`
+
+자동 재생 회귀 검사: `node tools/verifyAutoplay.mjs` (동작 줄이기 켜짐·꺼짐 모두 검사).
 
 ## 공개 상태
 

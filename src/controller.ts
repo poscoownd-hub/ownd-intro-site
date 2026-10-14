@@ -6,8 +6,7 @@ import type { Story } from "./story"
 
 type UI = {
   stageWrap: HTMLElement
-  play: HTMLButtonElement
-  replay: HTMLButtonElement
+
   chapters: HTMLButtonElement[]
   fills: HTMLElement[]
 }
@@ -20,12 +19,10 @@ export class Controller {
   private inView = true
   private raf = 0
   private last = 0
-  private reduced: boolean
+
   private ranges = CHAPTERS.map((c, i) => ({ from: secAt(c.from), to: i + 1 < CHAPTERS.length ? secAt(CHAPTERS[i + 1].from) : DURATION }))
 
-  constructor(private story: Story, private ui: UI) {
-    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  }
+  constructor(private story: Story, private ui: UI) {}
 
   start(): void {
     window.addEventListener("resize", () => {
@@ -38,26 +35,18 @@ export class Controller {
     }, { threshold: 0.25 }).observe(this.ui.stageWrap)
     document.addEventListener("visibilitychange", () => this.kick())
 
-    this.ui.play.addEventListener("click", () => (this.playing ? this.pause() : this.play()))
-    this.ui.replay.addEventListener("click", () => {
-      this.sec = 0
-      this.play()
-    })
+
     this.ui.chapters.forEach((b, i) => b.addEventListener("click", () => this.goChapter(i)))
 
-    if (this.reduced) {
-      // 동작 줄이기: 자동 재생하지 않고 장마다 정지 장면을 보여 준다
-      this.goChapter(0)
-    } else {
-      this.play()
-    }
+    // 소개 영상은 OS의 동작 줄이기 설정과 관계없이 자동 재생한다.
+    this.play()
   }
 
   private currentBeat(): number {
-    if (this.reduced) return CHAPTERS[this.reducedIdx].still
+
     return beatAt(this.sec)
   }
-  private reducedIdx = 0
+
 
   /** 오래된 seek 결과가 최신 프레임을 덮어쓰지 않게 세대 번호로 막는다 */
   render(beat: number): Promise<void> {
@@ -67,12 +56,7 @@ export class Controller {
   }
 
   goChapter(i: number): void {
-    if (this.reduced) {
-      this.reducedIdx = i
-      this.updateUI(i)
-      void this.render(CHAPTERS[i].still)
-      return
-    }
+
     this.sec = this.ranges[i].from
     this.last = 0
     this.updateUI()
@@ -80,12 +64,10 @@ export class Controller {
   }
 
   play(): void {
-    if (this.reduced) return
+
     this.playing = true
     this.userPaused = false
-    this.ui.play.setAttribute("aria-pressed", "true")
-    this.ui.play.setAttribute("aria-label", "일시정지")
-    this.ui.play.dataset.state = "playing"
+
     this.last = 0
     this.kick()
   }
@@ -94,9 +76,7 @@ export class Controller {
     this.playing = false
     this.userPaused = true
     cancelAnimationFrame(this.raf)
-    this.ui.play.setAttribute("aria-pressed", "false")
-    this.ui.play.setAttribute("aria-label", "재생")
-    this.ui.play.dataset.state = "paused"
+
   }
 
   /** 화면 밖이거나 탭이 숨으면 그리지 않는다. 돌아오면 이어서 */
@@ -118,7 +98,7 @@ export class Controller {
   private updateUI(forced?: number): void {
     const cur = forced ?? this.ranges.findIndex((r) => this.sec >= r.from && this.sec < r.to)
     this.ranges.forEach((r, i) => {
-      const p = this.reduced ? (i === cur ? 1 : 0) : Math.min(1, Math.max(0, (this.sec - r.from) / (r.to - r.from)))
+      const p = Math.min(1, Math.max(0, (this.sec - r.from) / (r.to - r.from)))
       this.ui.fills[i].style.transform = `scaleX(${p})`
       this.ui.chapters[i].setAttribute("aria-current", String(i === cur))
     })

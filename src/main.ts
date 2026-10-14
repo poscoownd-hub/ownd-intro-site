@@ -10,8 +10,7 @@ const story = new Story(stage, { cta: document.getElementById("film-cta")! })
 setupStartButtons()
 const controller = new Controller(story, {
   stageWrap: wrap,
-  play: document.getElementById("ctl-play") as HTMLButtonElement,
-  replay: document.getElementById("ctl-replay") as HTMLButtonElement,
+
   chapters: Array.from(document.querySelectorAll<HTMLButtonElement>(".chap")),
   fills: Array.from(document.querySelectorAll<HTMLElement>(".chap-fill")),
 })

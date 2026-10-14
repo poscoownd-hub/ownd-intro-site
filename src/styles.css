@@ -110,9 +110,7 @@ b, strong { font-weight: 650; }
   .l-short { display: inline; }
   .chapters { gap: 4px; margin-left: 2px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  #ctl-play, #ctl-replay { display: none; }
-}
+
 
 /* ===== 아래 섹션: 보여 주는 것 위주 ===== */
 .sec { padding: 72px max(var(--gutter), env(safe-area-inset-right)) 72px max(var(--gutter), env(safe-area-inset-left)); border-top: 1px solid var(--line); }

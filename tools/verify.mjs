@@ -223,21 +223,22 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
   await page.close()
 }
 
-// 7) 동작 줄이기: 자동 재생 없음, 장마다 정지 장면, 재생 버튼 숨김
+// 7) 동작 줄이기 설정에서도 자동 재생, 별도 재생 제어 버튼 없음
 {
   const page = await open({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" }, { play: true })
   await page.waitForTimeout(1200)
   const t0 = await page.evaluate(() => document.getElementById("stage").dataset.t)
+  await page.evaluate(() => window.owndStory.pause())
   await page.click(".chap >> nth=3")
   await page.waitForTimeout(300)
   const r = await page.evaluate(() => ({
     t: document.getElementById("stage").dataset.t,
-    playHidden: getComputedStyle(document.getElementById("ctl-play")).display === "none",
+    controlsAbsent: !document.querySelector("#ctl-play, #ctl-replay"),
     sections: ["screens", "map", "status"].every((i) => document.getElementById(i).innerText.length > 50),
   }))
   await page.waitForTimeout(800)
   const t2 = await page.evaluate(() => document.getElementById("stage").dataset.t)
-  ok("동작 줄이기: 자동 재생 안 함, 장 버튼으로 정지 장면 이동, 재생 버튼 숨김, 아래 내용 그대로", t0 === "9.600" && r.t === "41.500" && t2 === r.t && r.playHidden && r.sections, `처음 t=${t0}, 4장 t=${r.t}`)
+  ok("동작 줄이기: 자동 재생, 장 이동, 제어 버튼 없음, 아래 내용 그대로", Number(t0) > 0 && r.t === "34.000" && t2 === r.t && r.controlsAbsent && r.sections, `처음 t=${t0}, 4장 t=${r.t}`)
   await page.screenshot({ path: join(OUT, "reduced-motion.png") })
   await page.close()
 }
@@ -249,15 +250,17 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
   const a = await sec()
   await page.waitForTimeout(2000)
   const b = await sec()
-  await page.click("#ctl-play")
+  await page.evaluate(() => window.owndStory.pause())
   await page.waitForTimeout(150)
   const c = await sec()
   await page.waitForTimeout(800)
   const d = await sec()
-  await page.click("#ctl-play")
+  await page.reload({ waitUntil: "load" })
+  await page.evaluate(() => window.owndStory.ready)
   await page.waitForTimeout(800)
   const e = await sec()
-  await page.click("#ctl-replay")
+  await page.reload({ waitUntil: "load" })
+  await page.evaluate(() => window.owndStory.ready)
   await page.waitForTimeout(200)
   const f = await sec()
   await page.evaluate(() => document.getElementById("status").scrollIntoView({ behavior: "instant" }))
@@ -267,7 +270,7 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
   const h = await sec()
   const speed = (b - a) / 2
   ok("자동 재생: 바로 재생, 실제 시간 속도(1초 ≈ 1초)", speed > 0.8 && speed < 1.2, `2초 동안 ${(b - a).toFixed(2)}초 진행 · 전체 ${(await page.evaluate(() => window.owndStory.duration)).toFixed(1)}초`)
-  ok("일시정지·이어 재생·다시 보기", Math.abs(c - d) < 1e-6 && e > d + 0.5 && f < 0.5, `정지 ${c.toFixed(2)}→${d.toFixed(2)}, 재생 후 ${e.toFixed(2)}, 다시 보기 ${f.toFixed(2)}`)
+  ok("검증용 일시정지·새로고침 후 자동 재생", Math.abs(c - d) < 1e-6 && e > 0.5 && f < 0.5, `정지 ${c.toFixed(2)}→${d.toFixed(2)}, 새로고침 후 ${e.toFixed(2)}, 처음부터 ${f.toFixed(2)}`)
   ok("화면 밖으로 나가면 재생을 멈춤", Math.abs(g - h) < 1e-6, `${g.toFixed(2)}→${h.toFixed(2)}`)
   const keyboard = await page.evaluate(() => [...document.querySelectorAll("a[href], button")].every((x) => x.tabIndex >= 0))
   ok("링크·버튼 키보드 접근 가능, 무대는 aria-hidden, 자막은 화면 읽기용 목록으로 제공", keyboard && (await page.getAttribute("#stage", "aria-hidden")) === "true" && (await page.$$eval("#film ol.sr-only li", (l) => l.length)) === 10)
