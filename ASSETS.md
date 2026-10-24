@@ -6,7 +6,8 @@
 | `public/assets/photos/climbing.jpg` | 실내 클라이밍 | Unsplash, `photo-1564769662533-4f00a87b4056` (같은 출처) | 위와 같음 |
 | `public/assets/photos/clay-court.jpg` | 클레이 테니스 코트 항공 사진 | Unsplash, `photo-1620742820748-87c09249a72a` (같은 출처) | 위와 같음 |
 | `public/assets/photos/pool.jpg` | 실내 수영장 | Unsplash, `photo-1782958995190-75701221aab4` (같은 출처) | 위와 같음 |
-| `public/assets/app/*.png` | 오운디 소비자 앱 화면 6장 | 본 프로젝트 소비자 앱(Expo 웹)을 로컬에서 실행해 캡처(`tools/captureApp.mjs`) | 자체 제작. 화면 속 시설은 테스트용 가상 데이터예요(‘가상 연수 테니스장’, ‘파트너 송도 탁구클럽 2호점’). |
+| `public/assets/app/*.png` | (이전 버전, 지금은 사이트에서 쓰지 않음) 오운디 소비자 앱 화면 6장 | 본 프로젝트 소비자 앱(Expo 웹)을 로컬에서 실행해 캡처(`tools/captureApp.mjs`) | 자체 제작. 화면 속 시설은 테스트용 가상 데이터예요(‘가상 연수 테니스장’, ‘파트너 송도 탁구클럽 2호점’). |
+| `public/assets/screens/*.webp` | 소비자 앱(`c-*`)·사장님 앱(`o-*`) 화면 18장 | `photo/사용자`, `photo/사장님`의 실기기 캡처(1080×2340)에서 상태 표시줄을 잘라 720×1496 WebP로 변환 | 자체 제작. 사장님 앱의 매출·예약 수치와 ‘OWND 샘플’ 시설은 샘플 데이터예요. 검색 결과 장소는 공유누리·카카오 장소 정보예요. |
 | 글꼴 Archivo, Geist, Pretendard | 워드마크·영문 UI·한글 | npm `@fontsource-variable/archivo`, `@fontsource-variable/geist`, `pretendard` | SIL Open Font License 1.1 |
 
 - 사진은 분위기 연출용이에요. 오운디에 등록된 실제 시설 사진으로 소개하지 않아요(사이트 하단에도 적어 둠).

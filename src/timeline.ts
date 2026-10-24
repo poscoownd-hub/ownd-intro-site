@@ -152,22 +152,22 @@ export function secAt(beat: number): number {
 /** 영상의 장(챕터). still = 동작 줄이기 모드에서 보여 줄 정지 장면 */
 export const CHAPTERS = [
   { id: "intro", label: "오운디", from: 0, to: 12, still: 9.6 },
-  { id: "search", label: "시설 찾기", from: 12, to: 24.4, still: 18 },
-  { id: "info", label: "시설 정보", from: 24.4, to: 34, still: 26.3 },
-  { id: "route", label: "예약 안내", from: 34, to: 42, still: 41.5 },
-  { id: "go", label: "운동하러", from: 42, to: 54, still: 47.6 },
+  { id: "search", label: "대화형 검색", from: 12, to: 24.4, still: 18 },
+  { id: "info", label: "공공·민간", from: 24.4, to: 34, still: 26.3 },
+  { id: "route", label: "예약·승인", from: 34, to: 42, still: 41.5 },
+  { id: "go", label: "함께 운동", from: 42, to: 54, still: 47.6 },
 ] as const
 
 /** 영상 안 자막(키노트식 카드). 비트 구간 */
 export type Caption = { from: number; to: number; kicker: string; title: string; body: string; tag?: "demo" | "dev" | "plan"; tagText?: string; still: number; cta?: boolean }
 export const CAPTIONS: Caption[] = [
-  { from: 1.6, to: 8, kicker: "OWND · 오운디", title: "운동할 곳,\n이제 한 번에 찾아요", body: "인천 연수구(송도 포함)에서 먼저 시작해요.", still: 3.2 },
-  { from: 8, to: 12, kicker: "OWND · 오운디", title: "공공·민간 시설을\n한 화면에", body: "체육관, 수영장, 테니스장, 클라이밍장까지 모아 보여드려요.", still: 9.6 },
-  { from: 12, to: 18.8, kicker: "시설 찾기", title: "말하듯 찾으면 돼요", body: "한마디가 지역·종목·주차 같은 조건으로 바뀌어요.", tag: "demo", tagText: "시연 화면", still: 18 },
-  { from: 18.8, to: 24.4, kicker: "시설 찾기", title: "가까운 곳부터\n좁혀 봐요", body: "거리, 종목, 공공·민간 여부로 골라요.", tag: "demo", tagText: "시연 컨트롤", still: 22.9 },
-  { from: 24.4, to: 31.6, kicker: "시설 정보", title: "어디서 온 정보인지도\n함께 보여요", body: "기관 자료인지, 실시간 정보인지 분명히 적어 둬요.", tag: "demo", tagText: "시연 화면", still: 26.3 },
-  { from: 31.6, to: 38, kicker: "시설 정보", title: "필요한 것만\n한눈에", body: "이름·위치·종목·출처를 한 화면에 모았어요.", tag: "demo", tagText: "시연 데이터", still: 35.9 },
-  { from: 38, to: 42, kicker: "예약 안내", title: "예약은 시설마다\n길이 달라요", body: "공공시설은 기관 공식 예약 페이지로 안내해요. 이동만으로 예약이 끝나진 않아요.", tag: "dev", tagText: "개발 중", still: 41.5 },
-  { from: 42, to: 48.2, kicker: "운동하러", title: "고르고, 확인하고,\n출발", body: "지역 → 종목 → 시설 정보 → 예약 경로. 지도는 카카오맵 연동을 준비 중이에요.", tag: "plan", tagText: "지도 연결 예정", still: 47.6 },
+  { from: 1.6, to: 8, kicker: "OWND · 오운디", title: "운동할 곳,\n이제 말로 찾아요", body: "인천 연수구(송도 포함)에서 먼저 시작해요.", still: 3.2 },
+  { from: 8, to: 12, kicker: "공공과 민간", title: "공공·민간 시설을\n한 화면에", body: "공공 체육시설과 동네 민간 시설, 커뮤니티와 사장님 앱까지 하나로 이어져요.", still: 9.6 },
+  { from: 12, to: 18.8, kicker: "대화형 검색", title: "말하듯 찾으면 돼요", body: "한마디가 지역·종목·공공/민간·거리 조건으로 바뀌어요.", tag: "demo", tagText: "실제 앱 화면", still: 18 },
+  { from: 18.8, to: 24.4, kicker: "데이터 축적", title: "검색할수록\n데이터가 쌓여요", body: "대화·조건·후보·선택이 기록돼 더 나은 검색과 사장님의 운영 근거가 돼요.", tag: "demo", tagText: "시연 컨트롤", still: 22.9 },
+  { from: 24.4, to: 31.6, kicker: "소비자 앱", title: "찾고, 비교하고,\n바로 신청", body: "공공시설은 출처와 확인 시각을, 연결 시설은 빈 시간과 후기를 보여 줘요.", tag: "demo", tagText: "실제 앱 화면", still: 26.3 },
+  { from: 31.6, to: 38, kicker: "공공과 민간", title: "필요한 것만\n한눈에", body: "이름·위치·종목·공공/민간 구분과 출처를 한 화면에 모았어요.", tag: "demo", tagText: "샘플 데이터", still: 35.9 },
+  { from: 38, to: 42, kicker: "사장님 앱", title: "신청하면\n사장님이 승인해요", body: "승인되면 확정, 승인이 없으면 시작 30분 뒤 자동 만료돼요. 결제는 현장에서.", tag: "dev", tagText: "베타 테스트 중", still: 41.5 },
+  { from: 42, to: 48.2, kicker: "커뮤니티", title: "운동하고,\n함께 나눠요", body: "후기·피드·채팅·게시판이 다음 사람의 선택을 돕고, 사장님에겐 운영 데이터가 돼요.", tag: "dev", tagText: "베타 테스트 중", still: 47.6 },
   { from: 50.3, to: 52.5, kicker: "OWND · 오운디", title: "이제 시작해\n볼까요?", body: "웹과 앱으로 곧 만나요.", still: 51.6, cta: true },
 ]

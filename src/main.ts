@@ -3,11 +3,13 @@ import { Story } from "./story"
 import { Controller } from "./controller"
 import { BEATS, DURATION, beatAt, secAt } from "./timeline"
 import { setupStartButtons } from "./start"
+import { setupReveal } from "./reveal"
 
 const stage = document.getElementById("stage")!
 const wrap = document.getElementById("stage-wrap")!
 const story = new Story(stage, { cta: document.getElementById("film-cta")! })
 setupStartButtons()
+setupReveal()
 const controller = new Controller(story, {
   stageWrap: wrap,
 

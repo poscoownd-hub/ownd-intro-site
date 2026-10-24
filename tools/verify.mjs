@@ -120,7 +120,7 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
   }
   ok(`${name}: 자막 카드가 영상 안에 들어가고 재생 막대와 겹치지 않음`, overlap.length === 0, overlap.join(", "))
   const navFails = []
-  for (const id of ["screens", "map", "status", "film"]) {
+  for (const id of ["public", "search", "data", "apps", "community", "expand"]) {
     await page.click(`.nav a[href="#${id}"]`)
     await page.waitForTimeout(900)
     const r = await page.evaluate((i) => {
@@ -130,7 +130,7 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
     }, id)
     if (r.top < r.bar - 2 || r.top > r.vh) navFails.push(`${id}(${Math.round(r.top)} vs ${Math.round(r.bar)})`)
   }
-  ok(`${name}: 상단 내비 4개 이동`, navFails.length === 0, navFails.join("; "))
+  ok(`${name}: 상단 내비 6개 이동`, navFails.length === 0, navFails.join("; "))
   await page.close()
 }
 
@@ -234,7 +234,7 @@ for (const [name, opts] of [["데스크톱 1440×900", { viewport: { width: 1440
   const r = await page.evaluate(() => ({
     t: document.getElementById("stage").dataset.t,
     controlsAbsent: !document.querySelector("#ctl-play, #ctl-replay"),
-    sections: ["screens", "map", "status"].every((i) => document.getElementById(i).innerText.length > 50),
+    sections: ["keys", "public", "search", "data", "apps", "community", "expand", "status"].every((i) => document.getElementById(i).innerText.length > 50),
   }))
   await page.waitForTimeout(800)
   const t2 = await page.evaluate(() => document.getElementById("stage").dataset.t)

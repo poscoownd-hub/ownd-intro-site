@@ -12,11 +12,12 @@ const CY = 720
 const SVG_NS = "http://www.w3.org/2000/svg"
 
 const PHOTOS = { field: "/assets/photos/field.jpg", climbing: "/assets/photos/climbing.jpg", clay: "/assets/photos/clay-court.jpg", pool: "/assets/photos/pool.jpg" } as const
-const SCREENS = { explore: "/assets/app/explore.png", search: "/assets/app/search.png", places: "/assets/app/places.png", map: "/assets/app/places-map.png", external: "/assets/app/place-external.png", own: "/assets/app/facility-own.png" } as const
+// 실제 앱 캡처(소비자 앱·사장님 앱). 상태 표시줄은 잘라 냈다
+const SCREENS = { home: "/assets/screens/c-home.webp", search: "/assets/screens/c-search.webp", community: "/assets/screens/c-feed.webp", owner: "/assets/screens/o-dashboard.webp", consumer: "/assets/screens/c-booking.webp", facility: "/assets/screens/c-facility.webp" } as const
 type Asset = keyof typeof PHOTOS | keyof typeof SCREENS
 const SRC: Record<Asset, string> = { ...PHOTOS, ...SCREENS }
 /** 자산이 처음 필요한 비트(점진 로딩·seek 대기 기준) */
-const FIRST_USE: Record<Asset, number> = { field: 4, climbing: 6, clay: 6, pool: 6, explore: 6, search: 6, places: 99, map: 6, external: 6, own: 6 }
+const FIRST_USE: Record<Asset, number> = { field: 4, climbing: 6, clay: 6, pool: 6, home: 6, search: 6, community: 6, owner: 6, consumer: 6, facility: 6 }
 
 type Bleed = "field" | "clay" | "pool" | "paper"
 type BleedSpec = { x: number; y: number; w: number; h: number; clip?: string }
@@ -77,6 +78,8 @@ const ICONS = {
   ball: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M5 7.5c4 1.5 6 5 6.5 13M19 7.5c-4 1.5-6 5-6.5 13"/></svg>`,
   info: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 11v5M12 8h.01"/></svg>`,
   route: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="18" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/><circle cx="18" cy="6" r="2"/></svg>`,
+  chat: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z"/><path d="M8.5 10h.01M12 10h.01M15.5 10h.01"/></svg>`,
+  pair: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="6" width="7.5" height="12" rx="2"/><rect x="13" y="6" width="7.5" height="12" rx="2" fill="#fff"/></svg>`,
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg>`,
   ext: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/></svg>`,
 }
@@ -389,9 +392,9 @@ export class Story {
 
     // 3×3 격자 → 벤토
     const grid: [Asset, string | null][] = [
-      ["explore", null], ["pool", "공공 체육시설"], ["map", "위치와 이동"],
-      ["climbing", "민간 스포츠시설"], ["field", "종목별 탐색"], ["clay", null],
-      ["search", null], ["external", "예약 경로"], ["own", "시설 정보"],
+      ["home", null], ["pool", "공공 체육시설"], ["community", "커뮤니티"],
+      ["climbing", "민간 스포츠시설"], ["field", "대화형 검색"], ["clay", null],
+      ["search", null], ["owner", "사장님 앱"], ["consumer", "소비자 앱"],
     ]
     grid.forEach(([a, label], i) => {
       const isScreen = a in SCREENS
@@ -428,7 +431,7 @@ export class Story {
     for (let n = 0; n <= this.query.length; n++) this.measureCached(this.query.slice(0, n))
 
     const chipStyle = "font-family:var(--font-ko);font-weight:650;font-size:30px;"
-    for (const label of ["인천 연수구 · 필수", "공공·민간 함께", "종목 · 아무거나", "거리 · 가까운 곳"]) {
+    for (const label of ["인천 연수구", "종목 · 체육관", "공공·민간 함께", "거리 · 가까운 순"]) {
       const w = Math.ceil(this.measure(label, chipStyle)) + 64
       const root = div(this.world, "el")
       root.style.zIndex = "12"
@@ -444,7 +447,7 @@ export class Story {
       this.chips.push({ root, border, svg, fill, text, w })
       this.track_(root)
     }
-    this.badge1 = div(this.world, "el", "시연 화면")
+    this.badge1 = div(this.world, "el", "앱 화면")
     this.badge1.setAttribute("style", "z-index:14;font-family:var(--font-ko);font-weight:700;font-size:24px;line-height:44px;padding:0 16px;border-radius:8px;background:#E7F3F8;color:#245F80;white-space:nowrap")
     this.track_(this.badge1)
   }
@@ -532,7 +535,7 @@ export class Story {
     this.lensStatus.setAttribute("style", "position:absolute;left:0;top:0;width:100%;background:#fff")
     const clock = div(this.lensStatus, "", "9:41")
     clock.setAttribute("style", "position:absolute;left:34px;top:10px;font-family:var(--font-ui);font-weight:650;font-size:22px;line-height:26px;color:#111")
-    this.lensShot = this.img(this.lens.body, "external")
+    this.lensShot = this.img(this.lens.body, "facility")
     this.lensShot.setAttribute("style", "position:absolute;left:0;width:100%;object-fit:cover;object-position:top center;background:#fff")
     this.track_(this.lens.root)
   }
@@ -554,12 +557,12 @@ export class Story {
     thumb.setAttribute("style", "position:absolute;left:14px;top:14px;width:68px;height:68px;border-radius:14px;overflow:hidden")
     const ti = this.img(thumb, "clay")
     ti.setAttribute("style", "width:100%;height:100%;object-fit:cover")
-    this.summaryText = this.mkMask(this.summary, "가상 연수 테니스장", "font-family:var(--font-ko);font-weight:700;font-size:26px;line-height:34px;color:#fff;white-space:nowrap")
+    this.summaryText = this.mkMask(this.summary, "OWND 샘플 피트니스", "font-family:var(--font-ko);font-weight:700;font-size:26px;line-height:34px;color:#fff;white-space:nowrap")
     this.summaryText.root.style.position = "absolute"
-    const sub = div(this.summary, "", "공공 · 기관 사이트에서 예약")
+    const sub = div(this.summary, "", "민간 · 앱에서 예약 신청")
     sub.setAttribute("style", "position:absolute;left:100px;top:52px;font-family:var(--font-ko);font-size:19px;line-height:26px;color:rgba(255,255,255,0.7);white-space:nowrap")
     this.track_(this.summary)
-    this.badge2 = div(this.world, "el", "시연 화면")
+    this.badge2 = div(this.world, "el", "앱 화면")
     this.badge2.setAttribute("style", "z-index:18;font-family:var(--font-ko);font-weight:700;font-size:22px;line-height:40px;padding:0 14px;border-radius:8px;background:#E7F3F8;color:#245F80;white-space:nowrap")
     this.track_(this.badge2)
 
@@ -585,7 +588,7 @@ export class Story {
     tab.setAttribute("style", "position:absolute;left:110px;top:12px;height:40px;width:420px;border-radius:10px;background:rgba(255,255,255,0.12)")
     this.winTab = this.mkMask(tab, "새 탭", "font-family:var(--font-ko);font-size:20px;line-height:40px;color:rgba(255,255,255,0.85);padding-left:16px;white-space:nowrap")
     this.winTab.root.style.position = "absolute"
-    this.winTabNew = this.mkMask(tab, "가상 연수 테니스장 · OWND", "font-family:var(--font-ko);font-size:20px;line-height:40px;color:#fff;padding-left:16px;white-space:nowrap")
+    this.winTabNew = this.mkMask(tab, "OWND 샘플 피트니스 · OWND", "font-family:var(--font-ko);font-size:20px;line-height:40px;color:#fff;padding-left:16px;white-space:nowrap")
     this.winTabNew.root.style.position = "absolute"
     this.winBrowser = div(this.win, "")
     this.winBrowser.setAttribute("style", "position:absolute;left:0;top:64px;right:0;bottom:0;background:var(--paper);overflow:hidden")
@@ -607,7 +610,7 @@ export class Story {
     this.dragThumb.setAttribute("style", "position:absolute;overflow:hidden")
     const dti = this.img(this.dragThumb, "clay")
     dti.setAttribute("style", "position:absolute;inset:0;width:100%;height:100%;object-fit:cover")
-    this.dragText = div(this.dragCard, "", "가상 연수 테니스장")
+    this.dragText = div(this.dragCard, "", "OWND 샘플 피트니스")
     this.dragText.setAttribute("style", "position:absolute;left:100px;top:0;line-height:96px;font-family:var(--font-ko);font-weight:700;font-size:26px;color:#fff;white-space:nowrap;transform-origin:0 50%")
     this.track_(this.dragCard)
   }
@@ -649,18 +652,18 @@ export class Story {
     const hi = this.img(hero, "clay")
     hi.setAttribute("style", "position:absolute;inset:0;width:100%;height:100%;object-fit:cover")
     const info = [
-      this.mkMask(p, "가상 연수 테니스장", "font-family:var(--font-ko);font-weight:800;font-size:32px;line-height:42px;color:#111;white-space:nowrap"),
-      this.mkMask(p, "인천 연수구 · 테니스 · 공공", "font-family:var(--font-ko);font-weight:500;font-size:18px;line-height:28px;color:#3d3b37;white-space:nowrap"),
-      this.mkMask(p, "출처 공유누리(행정안전부) · 확인 시각 표시", "font-family:var(--font-ko);font-size:15px;line-height:24px;color:#6b6862;white-space:nowrap"),
-      this.mkMask(p, "‘사용 가능’ 표시는 실시간 빈자리가 아니에요", "font-family:var(--font-ko);font-size:15px;line-height:24px;color:#6b6862;white-space:nowrap"),
+      this.mkMask(p, "OWND 샘플 피트니스", "font-family:var(--font-ko);font-weight:800;font-size:32px;line-height:42px;color:#111;white-space:nowrap"),
+      this.mkMask(p, "인천 연수구 · 헬스 · 민간 연결 시설", "font-family:var(--font-ko);font-weight:500;font-size:18px;line-height:28px;color:#3d3b37;white-space:nowrap"),
+      this.mkMask(p, "공공시설은 공유누리 출처와 확인 시각을 함께 표시", "font-family:var(--font-ko);font-size:15px;line-height:24px;color:#6b6862;white-space:nowrap"),
+      this.mkMask(p, "사장님 승인 후 확정 · 결제는 현장에서", "font-family:var(--font-ko);font-size:15px;line-height:24px;color:#6b6862;white-space:nowrap"),
     ]
     info.forEach((m) => (m.root.style.position = "absolute"))
-    const tag = div(p, "", "시연 데이터")
+    const tag = div(p, "", "샘플 데이터")
     tag.setAttribute("style", "position:absolute;font-family:var(--font-ko);font-weight:700;font-size:14px;line-height:28px;padding:0 10px;border-radius:5px;background:#E7F3F8;color:#245F80;white-space:nowrap;transform-origin:0 50%")
     const groupsDef: [string, string[], number, number][] = [
-      ["종목", ["테니스", "탁구", "수영"], 0, 36.3],
+      ["종목", ["헬스", "테니스", "수영"], 0, 36.3],
       ["위치", ["연수구", "송도"], 0, 36.95],
-      ["유형", ["공공", "민간"], 0, 37.6],
+      ["유형", ["민간", "공공"], 0, 37.6],
     ]
     const groups = groupsDef.map(([label, opts, pick, at]) => {
       const l = div(p, "", label)
@@ -670,18 +673,18 @@ export class Story {
     })
     const nav = div(p, "")
     nav.setAttribute("style", "position:absolute;background:#111;overflow:hidden")
-    const navText = this.mkMask(nav, "예약 안내", "font-family:var(--font-ko);font-weight:600;font-size:15px;line-height:32px;color:#fff;white-space:nowrap;text-align:center")
+    const navText = this.mkMask(nav, "예약 신청", "font-family:var(--font-ko);font-weight:600;font-size:15px;line-height:32px;color:#fff;white-space:nowrap;text-align:center")
     navText.root.style.position = "absolute"
-    const actText = this.mkMask(nav, "공식 예약 페이지 확인", "font-family:var(--font-ko);font-weight:700;font-size:19px;line-height:56px;color:#fff;white-space:nowrap")
+    const actText = this.mkMask(nav, "예약 신청 보내기", "font-family:var(--font-ko);font-weight:700;font-size:19px;line-height:56px;color:#fff;white-space:nowrap")
     actText.root.style.position = "absolute"
-    const actIcon = div(nav, "", icon(ICONS.ext))
+    const actIcon = div(nav, "", icon(ICONS.check))
     actIcon.setAttribute("style", "position:absolute;width:22px;height:22px;transform-origin:50% 50%")
     const sheet = div(p, "")
     sheet.setAttribute("style", "position:absolute;background:#111;border-radius:22px 22px 0 0;overflow:hidden")
     const sheetText = [
-      this.mkMask(sheet, "잠깐, 아직 예약 전이에요", "font-family:var(--font-ko);font-weight:800;font-size:26px;line-height:38px;color:#fff;white-space:nowrap"),
-      this.mkMask(sheet, "기관 사이트로 이동해도 예약이 끝난 건 아니에요.", "font-family:var(--font-ko);font-size:18px;line-height:28px;color:rgba(255,255,255,0.8);white-space:nowrap"),
-      this.mkMask(sheet, "예약은 기관 사이트에서 마무리해 주세요.", "font-family:var(--font-ko);font-size:18px;line-height:28px;color:rgba(255,255,255,0.8);white-space:nowrap"),
+      this.mkMask(sheet, "신청 완료, 사장님 승인을 기다려요", "font-family:var(--font-ko);font-weight:800;font-size:26px;line-height:38px;color:#fff;white-space:nowrap"),
+      this.mkMask(sheet, "사장님 앱에 승인 대기로 올라가고, 승인하면 확정돼요.", "font-family:var(--font-ko);font-size:18px;line-height:28px;color:rgba(255,255,255,0.8);white-space:nowrap"),
+      this.mkMask(sheet, "승인되지 않으면 시작 30분 뒤 자동으로 만료돼요.", "font-family:var(--font-ko);font-size:18px;line-height:28px;color:rgba(255,255,255,0.8);white-space:nowrap"),
     ]
     sheetText.forEach((m, i) => {
       m.root.style.position = "absolute"
@@ -696,8 +699,8 @@ export class Story {
     this.flood = div(this.top, "el")
     this.flood.setAttribute("style", "background:#111;z-index:30")
     this.track_(this.flood)
-    const icons = [ICONS.pin, ICONS.ball, ICONS.info, ICONS.route, ICONS.check]
-    const labels = ["지역 선택", "종목 선택", "시설 정보 확인", "예약 경로 확인", "운동 준비"]
+    const icons = [ICONS.chat, ICONS.pair, ICONS.info, ICONS.route, ICONS.check]
+    const labels = ["대화로 검색", "공공·민간 비교", "빈 시간 확인", "위치·경로 확인", "신청 → 사장님 승인"]
     icons.forEach((svg) => {
       const d = div(this.top, "el", icon(svg))
       d.style.zIndex = "31"
@@ -729,7 +732,7 @@ export class Story {
     this.routePath = svgEl(this.route, "path", { d: "M400 820 C520 820 560 700 700 700 S900 640 1000 610", stroke: "#fff", "stroke-width": 7, fill: "none", "stroke-linecap": "round", "stroke-dasharray": "2 18" })
     this.routePin = svgEl(this.route, "g", {})
     this.routePin.innerHTML = `<path d="M1000 610c-22 0-38 16-38 36 0 28 38 60 38 60s38-32 38-60c0-20-16-36-38-36z" transform="translate(0 -96)" fill="#fff"/><circle cx="1000" cy="550" r="13" fill="#111"/>`
-    this.routeCap = this.mkMask(this.top, "위치 탐색 시연 — 실제 지도 연동 준비 중", "font-family:var(--font-ko);font-weight:600;font-size:24px;line-height:34px;color:rgba(255,255,255,0.75);white-space:nowrap")
+    this.routeCap = this.mkMask(this.top, "위치 도식 — 앱에서는 카카오 지도로 보여 줘요", "font-family:var(--font-ko);font-weight:600;font-size:24px;line-height:34px;color:rgba(255,255,255,0.75);white-space:nowrap")
     this.routeCap.root.style.zIndex = "31"
     this.track_(this.route)
     this.track_(this.routeCap.root)
@@ -740,7 +743,7 @@ export class Story {
     this.checkCircle = svgEl(this.checkSvg, "circle", { cx: 110, cy: 110, r: 96, fill: "none", stroke: "#fff", "stroke-width": 10, "stroke-linecap": "round", transform: "rotate(-90 110 110)" })
     this.checkTick = svgEl(this.checkSvg, "path", { d: "M68 114l30 30 56-62", fill: "none", stroke: "#fff", "stroke-width": 12, "stroke-linecap": "round", "stroke-linejoin": "round" })
     this.track_(this.checkSvg)
-    this.jCaption = this.mkMask(this.top, "공식 사이트에서 예약 진행", "font-family:var(--font-ko);font-weight:700;font-size:40px;line-height:58px;color:#fff;white-space:nowrap")
+    this.jCaption = this.mkMask(this.top, "승인되면 예약이 확정돼요", "font-family:var(--font-ko);font-weight:700;font-size:40px;line-height:58px;color:#fff;white-space:nowrap")
     this.jCaption.root.style.zIndex = "31"
     this.track_(this.jCaption.root)
   }
@@ -1185,7 +1188,7 @@ export class Story {
     return rect(186 + c * 364, 186 + r * 364, 340, 340)
   }
   private bentoRect(i: number): Rect {
-    // grid 순서: 0 explore,1 pool,2 map,3 climbing,4 field,5 clay,6 search,7 external,8 own
+    // grid 순서: 0 home,1 pool,2 community,3 climbing,4 field,5 clay,6 search,7 owner,8 consumer
     const B: Record<number, Rect> = {
       4: this.bentoA,
       1: rect(740, 150, 580, 270),
@@ -1253,7 +1256,7 @@ export class Story {
   // ===== BUILD (12–18) =====
 
   private readonly searchRect = centered(CX, 520, 1000, 124)
-  private readonly query = "연수구에서 운동할 곳 찾기"
+  private readonly query = "퇴근하고 갈 만한 체육관 있어?"
 
   private sceneBuild(t: number): void {
     const B = this.B
