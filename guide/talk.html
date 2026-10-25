@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>소통과 커뮤니티 · OWND 자세히 보기</title>
+    <meta name="description" content="시설 문의, 알림, 게시판, 1:1 채팅이 각각 어떤 데이터로 저장되고 앱에 어떻게 반영되는지 설명해요." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
+    <link rel="stylesheet" href="/src/guide.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
+      <a class="top-back" href="/#start">목차</a>
+    </header>
+    <div class="g-wrap">
+      <nav class="g-toc" aria-label="자세히 보기 목차"><p>자세히 보기</p><ol><li><a href="/guide/find.html"><span>01</span>대화형 검색</a></li><li><a href="/guide/request.html"><span>02</span>신청과 승인</a></li><li><a href="/guide/review.html"><span>03</span>이용과 후기</a></li><li><a href="/guide/talk.html" aria-current="page"><span>04</span>소통과 커뮤니티</a></li><li><a href="/guide/life.html"><span>05</span>운동 생활</a></li><li><a href="/guide/ops.html"><span>06</span>사장님 운영</a></li><li><a href="/guide/data.html"><span>07</span>데이터와 분석</a></li></ol></nav>
+      <main class="g-main">
+        <p class="g-kicker">04 · 자세히 보기</p>
+        <h1>소통과 커뮤니티</h1>
+        <p class="g-lead">시설 문의, 알림, 게시판, 1:1 채팅이 각각 어떤 데이터로 저장되고 앱에 어떻게 반영되는지 설명해요.</p>
+        <section class="g-sec"><h2>시설 문의와 1:1 채팅은 다른 모델이에요</h2><p>시설 문의는 이용자와 시설(사장님) 사이의 업무 흐름이에요. 문의(facility_inquiries)에 이용자·시설·선택한 예약·상태(답변 대기·답변 완료·종료)를 두고, 메시지(inquiry_messages)에 이용자 또는 사장님이 쓴 내용을 쌓아요. 사장님 쪽은 그 시설 권한이 있는지 매번 확인해요.</p><p>1:1 채팅은 이용자 두 사람의 대화방이에요. 두 사람의 ID를 정렬해 저장하기 때문에 누가 먼저 말을 걸어도 같은 방을 써요. 메시지를 보낼 때 메시지 추가, 방의 마지막 메시지 갱신, 보낸 사람의 읽음 시각을 한 트랜잭션에서 처리해요.</p></section><figure class="code"><figcaption>messaging.ts — 메시지 보내기(발췌)</figcaption><pre><code class="lang-typescript">return ctx.repo.tx(async (store) =&gt; {
+  await participantRoom(store, userId, chatId)   // 참여자만 보낼 수 있다
+  const sender = await publicUser(ctx, store, userId)
+  await store.insert(&quot;chatMessages&quot;, message)
+  await store.update(&quot;chatRooms&quot;, { chatId }, { lastMessage: message.body, lastMessageAt: createdAt })
+  await advanceRead(store, chatId, userId, createdAt)
+  return { ...message, sender, mine: true }
+})</code></pre></figure><section class="g-sec"><h2>새 내용이 앱에 들어오는 방식</h2><ol><li>데이터를 바꾸는 트랜잭션이 끝나면 공용 동기화 버전이 1 올라가요.</li><li>앱은 화면이 켜져 있을 때 약 3초마다 이 버전을 확인해요.</li><li>버전이 바뀌었으면 지금 보고 있는 화면이 새로 불러와요.</li><li>알림함에 새 알림이 있으면 기기 알림으로도 보여 줘요.</li></ol><p>실시간 연결(WebSocket) 방식은 아니에요. 앱을 완전히 종료하면 원격 푸시가 아직 없어서, 다시 열 때 알림함에서 확인해요.</p><p>읽음 표시처럼 본인 화면에만 의미 있는 변경은 동기화 버전을 올리지 않아요. 올리면 열린 화면이 모두 다시 불러오고, 그때 또 읽음 처리가 일어나는 반복이 생길 수 있기 때문이에요.</p></section><section class="g-sec"><h2>알림함</h2><p>알림(notifications)은 ‘받은 알림함’ 기록이에요. 새 신청과 이용자 취소는 그 시설 사장님 모두에게, 승인·거절·만료·사장님 취소는 예약한 이용자에게, 문의 답변은 상대방에게 남아요. 읽음 처리는 받는 사람 조건을 함께 걸어 다른 사람의 알림은 바꿀 수 없어요.</p></section><section class="g-sec"><h2>게시판</h2><p>게시판 글(community_posts)은 분류·제목·본문·작성자를 저장하고, 사진은 최대 10장(위치 0~9)을 순서대로 연결해요. 이모지 반응은 글·사용자·이모지 조합마다 하나씩이라 한 사람이 여러 종류의 반응을 남길 수 있어요.</p><p>글과 댓글 삭제는 목록에서 빼는 방식(삭제 시각 기록)이에요. 후기 좋아요·댓글과 게시판 반응·댓글은 서로 다른 테이블이에요.</p></section>
+        <nav class="g-pn" aria-label="이전·다음"><a class="pn pn-prev" href="/guide/review.html"><small>이전</small>이용과 후기</a><a class="pn pn-next" href="/guide/life.html"><small>다음</small>운동 생활</a></nav>
+        <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener"><span>Android 다운로드</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg></a>
+      </main>
+    </div>
+  </body>
+</html>

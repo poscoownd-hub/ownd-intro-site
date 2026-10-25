@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>대화형 검색 · OWND 자세히 보기</title>
+    <meta name="description" content="대화하듯 묻고 이어서 또 물으면, 그 대화가 어떤 데이터로 남고 결과 순서가 어떻게 정해지는지 설명해요." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
+    <link rel="stylesheet" href="/src/guide.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
+      <a class="top-back" href="/#start">목차</a>
+    </header>
+    <div class="g-wrap">
+      <nav class="g-toc" aria-label="자세히 보기 목차"><p>자세히 보기</p><ol><li><a href="/guide/find.html" aria-current="page"><span>01</span>대화형 검색</a></li><li><a href="/guide/request.html"><span>02</span>신청과 승인</a></li><li><a href="/guide/review.html"><span>03</span>이용과 후기</a></li><li><a href="/guide/talk.html"><span>04</span>소통과 커뮤니티</a></li><li><a href="/guide/life.html"><span>05</span>운동 생활</a></li><li><a href="/guide/ops.html"><span>06</span>사장님 운영</a></li><li><a href="/guide/data.html"><span>07</span>데이터와 분석</a></li></ol></nav>
+      <main class="g-main">
+        <p class="g-kicker">01 · 자세히 보기</p>
+        <h1>대화형 검색</h1>
+        <p class="g-lead">대화하듯 묻고 이어서 또 물으면, 그 대화가 어떤 데이터로 남고 결과 순서가 어떻게 정해지는지 설명해요.</p>
+        <section class="g-sec"><h2>검색 한 번이 남기는 세 단위</h2><p>홈 검색창은 ‘시간표(SLOT) 검색’과 다른 ‘장소(PLACE) 검색’이에요. 앱은 오운디 연결 시설, 미리 저장해 둔 공공시설 목록, 검색할 때 함께 불러온 카카오 장소를 후보로 모아 서버에 한 번에 보내요.</p><p>서버는 요청을 세 단위로 나눠 기록해요. 대화(searchKey)는 이어지는 질문 묶음, 발화(turnKey)는 질문 한 번, 실행(executionKey)은 그 질문으로 실제 후보를 평가한 한 번이에요. 단위마다 따로 중복 방지가 걸려 있어서, 네트워크가 끊겨 같은 요청이 다시 와도 결과가 두 번 저장되지 않아요.</p></section><section class="g-sec"><h2>결과 순서가 정해지는 과정</h2><ol><li>검색어(최대 500자), 위치·반경, 후보와 수집 통계를 확인하고 대화를 확보해요.</li><li>후보를 가까운 순으로 정렬한 뒤 최대 60곳을 평가 대상으로 정해요. 받은 후보 전체와 실제로 평가한 후보는 따로 기록해요.</li><li>화면에 남아 있는 검색 블록(이전 질문 최대 8개)과 지금 질문을 문맥으로 함께 써요. ‘연수구 풋살’ 다음 ‘송도 쪽이면 좋겠어’가 이어지는 이유예요.</li><li>AI(Jev)가 평가 대상마다 0~1 점수를 매기면, 점수가 하나라도 빠지거나 범위를 벗어났을 때는 실패로 처리해요. 성공하면 점수 높은 순, 같은 점수면 더 가까운 곳이 앞이에요.</li><li>실행·후보·순위·공급 요약은 한 트랜잭션으로 함께 저장해요.</li></ol><p>순서를 정하는 데 조건을 따로 필터처럼 끼워 넣지 않아요. 질문에서 읽어 낸 조건(종목·지역·시간 등)은 ‘의도 기록’으로 남기고, 순서는 문맥을 받은 점수로 정해요.</p></section><figure class="code"><figcaption>homeSearch.ts — 홈 검색 결과 저장(발췌)</figcaption><pre><code class="lang-typescript">return ctx.repo.tx(async (s) =&gt; {
+  // 같은 실행 키가 동시에 들어오면 먼저 저장한 쪽의 응답을 돌려준다(실행이 둘 생기지 않음)
+  if (!(await s.insertIgnore(&quot;idempotency&quot;, { scope: execScope, key: executionKey, requestHash: execHash, response: res, createdAt: at }))) {
+    return (await findIdempotent(s, execScope, executionKey, execHash))!.response as HomeSearchRes
+  }
+  await saveExecution(s, { executionId, conversationId, turnId, userId, sessionId, at, searchCenter, resultCount: candidates.length })
+  await s.insert(&quot;placeSupplySnapshots&quot;, supply)
+  for (const c of candidates) await s.insert(&quot;placeCandidates&quot;, c)
+  return res
+})</code></pre></figure><section class="g-sec"><h2>조건은 버전으로 남아요</h2><p>‘주말 저녁 풋살’ 다음에 ‘아니 오전으로’라고 하면 같은 시간 조건이 바뀌어요. 글자를 이어 붙이기만 하면 지금 유효한 조건과 지난 조건이 섞이기 때문에, 조건(search_conditions)·조건 버전(condition_versions)·조건 변화(condition_transitions)를 따로 둬요.</p><p>검색을 실행할 때는 그 순간 유효한 조건 버전을 실행에 고정해요(execution_conditions). 나중에 조건이 바뀌어도 과거 검색이 어떤 조건으로 실행됐는지는 그대로 남아요.</p></section><section class="g-sec"><h2>공공·민간 장소의 경계</h2><ul><li>오운디 연결 시설: 가격과 빈 시간이 있고, 앱에서 예약을 신청해요.</li><li>공공시설(공유누리, 연수구): 기관 데이터를 미리 받아 검증한 뒤 저장한 목록이에요. 검색할 때마다 외부에 실시간으로 묻지 않아요. 예약은 기관 경로로 안내해요.</li><li>카카오 장소: 검색할 때 함께 보여 주는 장소예요. 후보 기록에 카카오 장소 이름은 저장하지 않아요.</li></ul><p>외부 장소가 검색 결과에 보인다고 오운디 예약 재고가 생기지는 않아요. 정원 관리와 예약 확정은 오운디 연결 시설의 슬롯에만 적용돼요.</p><p>공공 목록은 같은 출처·외부 ID 기준으로 갱신해요. 내용이 같으면 확인 시각만 새로 고치고, 수집이 일부 실패한 회차에는 ‘기관이 삭제했다’고 판단하지 않아요. 완전한 목록을 받았을 때만 빠진 항목을 ‘출처에서 사라짐’으로 표시해요.</p></section>
+        <nav class="g-pn" aria-label="이전·다음"><span></span><a class="pn pn-next" href="/guide/request.html"><small>다음</small>신청과 승인</a></nav>
+        <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener"><span>Android 다운로드</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg></a>
+      </main>
+    </div>
+  </body>
+</html>

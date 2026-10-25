@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>사장님 운영 · OWND 자세히 보기</title>
+    <meta name="description" content="사장님 계정과 시설 권한, 공간·슬롯·가격이 어떻게 만들어지고 바뀌는지 설명해요." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
+    <link rel="stylesheet" href="/src/guide.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
+      <a class="top-back" href="/#start">목차</a>
+    </header>
+    <div class="g-wrap">
+      <nav class="g-toc" aria-label="자세히 보기 목차"><p>자세히 보기</p><ol><li><a href="/guide/find.html"><span>01</span>대화형 검색</a></li><li><a href="/guide/request.html"><span>02</span>신청과 승인</a></li><li><a href="/guide/review.html"><span>03</span>이용과 후기</a></li><li><a href="/guide/talk.html"><span>04</span>소통과 커뮤니티</a></li><li><a href="/guide/life.html"><span>05</span>운동 생활</a></li><li><a href="/guide/ops.html" aria-current="page"><span>06</span>사장님 운영</a></li><li><a href="/guide/data.html"><span>07</span>데이터와 분석</a></li></ol></nav>
+      <main class="g-main">
+        <p class="g-kicker">06 · 자세히 보기</p>
+        <h1>사장님 운영</h1>
+        <p class="g-lead">사장님 계정과 시설 권한, 공간·슬롯·가격이 어떻게 만들어지고 바뀌는지 설명해요.</p>
+        <section class="g-sec"><h2>로그인과 권한</h2><p>앱은 Google 로그인으로 Firebase 토큰을 받고, 서버는 토큰의 서명과 발급처·대상·만료 등을 검증해요. 검증된 계정은 오운디 주체와 연결되는데, 같은 Google 계정이라도 이용자(USER)와 사장님(OPERATOR)은 서로 다른 오운디 ID를 가질 수 있어요.</p><p>사장님으로 가입했다고 시설 권한이 생기지는 않아요. 시설을 만들 때 본인의 소유자(OWNER) 멤버십이 함께 생기고, 승인·가격 변경 같은 작업은 매번 그 시설 멤버십을 다시 확인해요. 사장님 화면을 열 수 있다는 것과 그 시설을 관리할 수 있다는 것은 다른 문제예요.</p></section><figure class="code"><figcaption>auth.ts — 로그인 토큰 검증(발췌)</figcaption><pre><code class="lang-typescript">export async function verifyBearer(ctx: Ctx, v: AuthVerifier, header: string | undefined): Promise&lt;FirebaseClaims&gt; {
+  const token = bearerToken(header)
+  if (!token) throw new OwndError(&quot;UNAUTHENTICATED&quot;, &quot;로그인이 필요해요.&quot;)
+  const certs = await v.certStore.certs(peekKid(token)) // 인증서가 없거나 만료면 실패로 닫는다
+  try {
+    return verifyFirebaseIdToken(token, { projectId: v.projectId, certs, now: ctx.clock.now() })
+  } catch (e) {
+    if (e instanceof IdTokenError) throw new OwndError(&quot;UNAUTHENTICATED&quot;, &quot;로그인이 만료됐거나 올바르지 않아요. 다시 로그인해주세요.&quot;, { reason: e.reason })
+    throw e
+  }
+}</code></pre></figure><section class="g-sec"><h2>시설 → 공간 → 슬롯 → 가격</h2><ul><li>시설: 주소·위치·시간대·종목·설명·운영시간·취소 규정을 가진 단위예요.</li><li>공간: 시설 안의 코트나 룸이에요. 종목, 수용 인원, 실내 여부를 가져요.</li><li>슬롯: 공간의 특정 시작·종료 시간이에요. 판매 상태(열림·막음·닫힘)와 정원을 가져요.</li><li>가격: 슬롯과 따로 저장하는 버전 기록이에요.</li></ul><p>시설을 등록하면 시설, 첫 취소 규정, 소유자 멤버십, 변경 이력이 한 트랜잭션으로 만들어져요.</p></section><section class="g-sec"><h2>가격은 덮어쓰지 않고 버전을 쌓아요</h2><p>가격을 바꾸면 지금 가격의 ‘유효 종료’ 시각을 채우고 새 가격 행을 만들어요. 한 슬롯에 ‘현재 가격’은 데이터베이스 규칙으로 하나만 허용돼요. 1인 가격이면 가격 단위 표시(PER_PERSON)를 따로 남기고, 표시가 없으면 1회 대관가예요.</p><p>예약은 신청 당시 가격 ID를 갖고 있어서, 가격을 몇 번 바꿔도 과거 예약 금액은 그대로예요.</p></section><section class="g-sec"><h2>예약 가능 여부</h2><p>시설과 공간이 운영 중이고, 슬롯이 열려 있고, 유효한 가격이 있고, 시간 조건과 확정된 예약·정원이 모두 맞아야 예약할 수 있어요. 슬롯이 ‘열림’이라는 것만으로 예약 가능하다고 보지 않아요. 확정 예약 기준으로 대관은 한 팀만, 1인 가격은 정원까지 함께 써요.</p></section><section class="g-sec"><h2>변경 이력</h2><p>시설·공간·슬롯·가격·규정을 바꾸면 누가, 왜, 무엇을 어떻게 바꿨는지(변경 전후) 기록해요. 이 기록이 ‘가격을 바꾼 뒤 무엇이 달라졌나’를 비교하는 기준이 돼요.</p></section>
+        <nav class="g-pn" aria-label="이전·다음"><a class="pn pn-prev" href="/guide/life.html"><small>이전</small>운동 생활</a><a class="pn pn-next" href="/guide/data.html"><small>다음</small>데이터와 분석</a></nav>
+        <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener"><span>Android 다운로드</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg></a>
+      </main>
+    </div>
+  </body>
+</html>

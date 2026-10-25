@@ -4,253 +4,59 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#F2EFE9" />
-    <title>OWND · 내 주변 스포츠, 오운디</title>
-    <meta name="description" content="오운디는 인천 연수구에서 시작하는 운동 플랫폼이에요. 공공·민간 시설을 대화하듯 찾고, 예약 신청은 사장님 앱에서 승인돼요. 커뮤니티와 쌓이는 데이터로 시설 운영 컨설팅·파이낸스까지 넓혀 가요." />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>OWND · 오운디 — 대화형 검색으로 찾고, 신청하고, 사장님이 승인하는 동네 운동</title>
+    <meta name="description" content="오운디는 동네 운동 앱이에요. 공공·민간 장소를 대화형 검색으로 찾고, 연결된 시설에는 앱에서 예약을 신청하면 사장님이 승인해요. 앱 결제는 없고 결제는 현장에서 해요." />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
   </head>
   <body>
-    <a class="skip" href="#public">영상 건너뛰기</a>
-
     <header class="topbar">
-      <a class="brand" href="#film" aria-label="OWND 소개 영상으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
-      <span class="brand-status"><span class="tag tag-dev">베타 테스트 중</span></span>
-      <nav class="nav" aria-label="페이지">
-        <ul>
-          <li><a href="#public">공공·민간</a></li>
-          <li><a href="#search">대화형 검색</a></li>
-          <li><a href="#data">데이터</a></li>
-          <li><a href="#apps">두 개의 앱</a></li>
-          <li><a href="#community">커뮤니티</a></li>
-          <li><a href="#expand">확장성</a></li>
-        </ul>
-      </nav>
-      <a class="top-cta" href="#start">시작하기</a>
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
     </header>
 
-    <main>
-      <section id="film" class="film" aria-labelledby="film-title">
-        <h1 id="film-title" class="sr-only">내 주변 스포츠, 오운디 — 소개 영상</h1>
-        <div class="stage-wrap" id="stage-wrap">
-          <!-- 연출 무대: 장식. 같은 내용을 아래 목록과 각 섹션에서 글로도 제공한다 -->
+    <main id="top">
+      <section id="film" class="film" aria-label="오운디 제품 데모 영상">
+        <p class="sr-only">오운디 앱 데모 영상이에요. 홈에서 대화형 검색으로 장소를 찾고, 시설 상세에서 날짜·인원·시간을 골라 예약을 신청하면 사장님 화면에 같은 신청이 도착해 승인돼요. 이용자는 알림으로 확정을 확인하고, 이용 뒤 후기를 남기고 게시판과 1:1 채팅으로 소통해요. 마지막으로 사장님 운영 분석 화면을 보여 줘요. 기능별 자세한 설명은 아래 목차에서 볼 수 있어요.</p>
+        <div class="stage-wrap" id="stage-wrap" data-intro="pre">
+          <div class="backdrop" aria-hidden="true">
+            <div class="bd-grid"></div>
+            <div class="bd-word"><span>O</span><span>W</span><span>N</span><span>D</span></div>
+            <div class="bd-ring bd-ring-1"></div>
+            <div class="bd-ring bd-ring-2"></div>
+          </div>
+          <!-- 연출 무대: 장식. 기능별 설명은 아래 목차의 자세히 보기 페이지에서 글로도 제공한다 -->
           <div class="stage" id="stage" aria-hidden="true"></div>
-          <a class="cap-cta" id="film-cta" href="#start">시작하기<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
-          <div class="player" role="group" aria-label="소개 영상 재생">
+          <a class="cap-cta" id="film-cta" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener">Android 앱 받기<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+        </div>
+        <p class="more"><a href="#start">아래에서 OWND 다운로드와 자세한 설명 보기<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg></a></p>
+      </section>
 
-            <ol class="chapters" aria-label="장">
-              <li><button type="button" class="chap"><span class="chap-label"><span class="l-long">오운디</span><span class="l-short" aria-hidden="true">오운디</span></span><span class="chap-bar"><span class="chap-fill"></span></span></button></li>
-              <li><button type="button" class="chap"><span class="chap-label"><span class="l-long">대화형 검색</span><span class="l-short" aria-hidden="true">검색</span></span><span class="chap-bar"><span class="chap-fill"></span></span></button></li>
-              <li><button type="button" class="chap"><span class="chap-label"><span class="l-long">공공·민간</span><span class="l-short" aria-hidden="true">공공·민간</span></span><span class="chap-bar"><span class="chap-fill"></span></span></button></li>
-              <li><button type="button" class="chap"><span class="chap-label"><span class="l-long">예약·승인</span><span class="l-short" aria-hidden="true">예약</span></span><span class="chap-bar"><span class="chap-fill"></span></span></button></li>
-              <li><button type="button" class="chap"><span class="chap-label"><span class="l-long">함께 운동</span><span class="l-short" aria-hidden="true">함께</span></span><span class="chap-bar"><span class="chap-fill"></span></span></button></li>
+      <section id="start" class="start" aria-labelledby="h-start">
+        <div class="start-inner">
+          <div class="start-brand">
+            <h2 id="h-start" class="start-logo">OWND</h2>
+            <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener">
+              <span>Android 다운로드</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg>
+            </a>
+          </div>
+          <nav class="toc" aria-label="자세히 보기">
+            <p class="toc-title">자세히 보기</p>
+            <ol>
+              <li><a href="/guide/find.html"><span class="toc-n">01</span><span class="toc-t">대화형 검색</span><span class="toc-d">필터 대신 대화하듯 묻고, 이어서 또 물어요</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/request.html"><span class="toc-n">02</span><span class="toc-t">신청과 승인</span><span class="toc-d">하나의 예약이 이용자·사장님 화면을 오가요</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/review.html"><span class="toc-n">03</span><span class="toc-t">이용과 후기</span><span class="toc-d">이용 완료가 확인된 예약에만 후기를 써요</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/talk.html"><span class="toc-n">04</span><span class="toc-t">소통과 커뮤니티</span><span class="toc-d">시설 문의, 게시판, 1:1 채팅</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/life.html"><span class="toc-n">05</span><span class="toc-t">운동 생활</span><span class="toc-d">학교 시설 이용 문의와 개인 운동일지</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/ops.html"><span class="toc-n">06</span><span class="toc-t">사장님 운영</span><span class="toc-d">시설·공간·시간표·가격을 직접 운영해요</span><span class="toc-a" aria-hidden="true">→</span></a></li>
+              <li><a href="/guide/data.html"><span class="toc-n">07</span><span class="toc-t">데이터와 분석</span><span class="toc-d">쌓인 기록이 운영 근거가 돼요</span><span class="toc-a" aria-hidden="true">→</span></a></li>
             </ol>
-          </div>
-        </div>
-        <ol class="sr-only">
-          <li>운동할 곳, 이제 말로 찾아요. 인천 연수구(송도 포함)에서 먼저 시작해요.</li>
-          <li>공공·민간 시설을 한 화면에. 공공 체육시설과 동네 민간 시설, 커뮤니티와 사장님 앱까지 하나로 이어져요.</li>
-          <li>말하듯 찾으면 돼요. 한마디가 지역·종목·공공/민간·거리 조건으로 바뀌어요. (실제 앱 화면)</li>
-          <li>검색할수록 데이터가 쌓여요. 대화·조건·후보·선택이 기록돼 더 나은 검색과 사장님의 운영 근거가 돼요.</li>
-          <li>찾고, 비교하고, 바로 신청. 공공시설은 출처와 확인 시각을, 연결 시설은 빈 시간과 후기를 보여 줘요.</li>
-          <li>필요한 것만 한눈에. 이름·위치·종목·공공/민간 구분과 출처를 한 화면에 모았어요.</li>
-          <li>신청하면 사장님이 승인해요. 승인되면 확정, 승인이 없으면 시작 30분 뒤 자동 만료돼요. 결제는 현장에서.</li>
-          <li>운동하고, 함께 나눠요. 후기·피드·채팅·게시판이 다음 사람의 선택을 돕고, 사장님에겐 운영 데이터가 돼요.</li>
-          <li>찾는 시간은 짧게, 운동하는 시간은 길게.</li>
-          <li>이제 시작해 볼까요? 웹과 앱으로 곧 만나요.</li>
-        </ol>
-      </section>
-
-      <section id="keys" class="sec keys" aria-labelledby="h-keys">
-        <div class="sec-head">
-          <p class="kicker">OWND가 만드는 것</p>
-          <h2 id="h-keys">찾는 사람과 운영하는 사람을<br />한 흐름으로 잇는 운동 플랫폼</h2>
-        </div>
-        <ol class="key-grid">
-          <li><a href="#public"><span class="k-n">01</span><b>공공과 민간</b><span>흩어진 공공·민간 시설을 한 화면에</span></a></li>
-          <li><a href="#search"><span class="k-n">02</span><b>대화형 검색</b><span>말하듯 묻고, 조건은 앱이 정리</span></a></li>
-          <li><a href="#data"><span class="k-n">03</span><b>데이터 축적</b><span>검색·예약·후기가 구조화돼 쌓여요</span></a></li>
-          <li><a href="#apps"><span class="k-n">04</span><b>소비자 앱 × 사장님 앱</b><span>신청과 승인이 두 앱 사이를 오가요</span></a></li>
-          <li><a href="#community"><span class="k-n">05</span><b>커뮤니티</b><span>방문 인증 후기·피드·채팅·게시판</span></a></li>
-          <li><a href="#expand"><span class="k-n">06</span><b>컨설팅 · 파이낸스</b><span>운영 데이터로 넓혀 가는 사장님 앱</span></a></li>
-        </ol>
-      </section>
-
-      <section id="public" class="sec kw" aria-labelledby="h-public">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">01</span> 공공과 민간</p>
-          <h2 id="h-public">공공 체육시설도, 동네 헬스장도<br />한 번에 찾아요</h2>
-          <p>지금은 공공시설은 기관 사이트에서, 민간 시설은 지도 앱과 SNS에서 따로 찾아야 해요. 오운디는 둘을 한 목록에 모으고, 시설마다 맞는 다음 행동을 알려 줘요.</p>
-        </div>
-        <div class="duo">
-          <ul class="phones">
-            <li><figure><img src="/assets/screens/c-search.webp" width="720" height="1496" loading="lazy" alt="‘체육관’ 검색 결과. 장소 21곳, 인천 연수구 반경 5km. 민간 체육관과 공유누리 공공 체육관이 한 목록에 섞여 있다." /><figcaption><b>한 목록에서 비교</b>공공·민간 표시와 출처를 함께</figcaption></figure></li>
-            <li><figure><img src="/assets/screens/c-school.webp" width="720" height="1496" loading="lazy" alt="학교 시설 예약 문의 화면. 카카오 지도 위에 학교 위치를 보여 주고 희망 날짜·시간·사용 목적을 입력한다." /><figcaption><b>학교 시설까지</b>지도에서 고르고 이용 문의</figcaption></figure></li>
-          </ul>
-          <ol class="uses">
-            <li><span class="n pub">공</span><div><b>공공시설</b>공유누리(행정안전부) 자료로 연수구 공공 체육시설을 모아요. 출처와 확인 시각을 함께 보여 주고, 기관의 공식 예약 경로를 안내해요.</div></li>
-            <li><span class="n">민</span><div><b>민간 시설</b>동네 헬스장·필라테스·테니스장을 함께 보여 줘요. 오운디에 연결된 시설은 빈 시간을 보고 앱에서 바로 예약을 신청해요.</div></li>
-            <li><span class="n map">⌖</span><div><b>지도로 확인</b>카카오 지도 위에서 위치를 보고, 거리 순으로 가까운 곳부터 좁혀요.</div></li>
-          </ol>
-        </div>
-      </section>
-
-      <section id="search" class="sec kw kw-dark" aria-labelledby="h-search">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">02</span> 대화형 검색</p>
-          <h2 id="h-search">필터를 고르는 대신,<br />말하듯 물어보세요</h2>
-          <p>한 문장을 지역·종목·공공/민간·거리 조건으로 바꿔 검색해요. 이어서 묻는 말도 앞의 문맥을 이어받아요.</p>
-        </div>
-        <div class="duo">
-          <div class="talk" aria-hidden="true">
-            <div class="t-q">퇴근하고 갈 만한 체육관 있어?</div>
-            <div class="t-chips"><span>인천 연수구</span><span>종목 · 체육관</span><span>공공·민간 함께</span><span>거리 · 가까운 순</span></div>
-            <div class="t-a"><b>장소 21곳</b> · 가까운 순<br /><i>라이칸짐 헬스&amp;PT 0.7km · 민간</i><i>인천장애인체육관 1.7km · 공공</i></div>
-            <div class="t-q t-q2">그중에 민간 시설만 보여 줘</div>
-            <div class="t-chips t-chips2"><span>유형 · 민간만</span></div>
-          </div>
-          <ul class="phones">
-            <li><figure><img src="/assets/screens/c-home.webp" width="720" height="1496" loading="lazy" alt="오운디 소비자 앱 홈. 큰 OWND 로고와 검색창, 근처 운동 장소와 최신 게시글." /><figcaption><b>홈 검색창 하나로</b>‘Keep Challenging’ 검색창에서 시작</figcaption></figure></li>
-            <li><figure><img src="/assets/screens/c-search.webp" width="720" height="1496" loading="lazy" alt="검색 결과. ‘체육관’ 조건 칩과 장소 21곳 목록." /><figcaption><b>조건 칩으로 정리</b>말한 내용이 조건으로 바뀌어요</figcaption></figure></li>
-          </ul>
-        </div>
-      </section>
-
-      <section id="data" class="sec kw" aria-labelledby="h-data">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">03</span> 데이터 축적</p>
-          <h2 id="h-data">검색 한 번, 예약 한 건이<br />쌓여서 지역의 운동 데이터가 돼요</h2>
-          <p>오운디는 결과만 보여 주고 끝내지 않아요. 무엇을 찾았고, 어떤 후보가 나왔고, 무엇을 골랐는지를 구조화해서 기록해요.</p>
-        </div>
-        <ol class="pipe">
-          <li><b>대화</b><span>검색 세션</span></li>
-          <li><b>질문</b><span>한 턴의 문장</span></li>
-          <li><b>조건</b><span>지역·종목·유형·거리</span></li>
-          <li><b>후보</b><span>나온 시설과 순위</span></li>
-          <li><b>공급</b><span>시설·빈 시간 요약</span></li>
-          <li><b>행동</b><span>노출·선택·예약</span></li>
-          <li><b>후기</b><span>방문 인증 리뷰</span></li>
-        </ol>
-        <ul class="gives">
-          <li><span class="g-who">이용자에게</span><b>다음 검색이 더 정확해져요</b><span>앞의 대화와 고른 시설이 다음 추천의 문맥이 돼요.</span></li>
-          <li><span class="g-who">사장님에게</span><b>운영의 근거가 생겨요</b><span>우리 시설을 찾은 수요, 예약 퍼널, 가동률·취소율을 숫자로 봐요.</span></li>
-          <li><span class="g-who">지역에</span><b>운동 수요 지도가 그려져요</b><span>어디서, 어떤 운동을, 언제 찾는지가 보이기 시작해요.</span></li>
-        </ul>
-        <p class="fine">사장님 앱에서는 예약자 이름을 일부 가려서 보여 줘요.</p>
-      </section>
-
-      <section id="apps" class="sec kw" aria-labelledby="h-apps">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">04</span> 소비자 앱 × 사장님 앱</p>
-          <h2 id="h-apps">신청은 소비자 앱에서,<br />승인은 사장님 앱에서</h2>
-          <p>두 앱이 같은 예약을 함께 봐요. 이용자가 신청하면 사장님 앱에 승인 대기로 올라오고, 사장님이 승인하면 확정돼요. 같은 시간에 신청이 겹치면 하나를 승인할 때 나머지는 자동으로 정리돼요.</p>
-        </div>
-        <ol class="relay" aria-label="예약 흐름">
-          <li><span class="r-app">소비자 앱</span><b>빈 시간 고르고 신청</b></li>
-          <li><span class="r-app owner">사장님 앱</span><b>승인 대기로 도착</b></li>
-          <li><span class="r-app owner">사장님 앱</span><b>승인 → 예약 확정</b></li>
-          <li><span class="r-app">소비자 앱</span><b>이용 후 방문 인증 후기</b></li>
-        </ol>
-        <h3 class="row-title"><span class="tag tag-demo">실제 앱 화면</span> 소비자 앱</h3>
-        <ul class="gallery">
-          <li><figure><img src="/assets/screens/c-home.webp" width="720" height="1496" loading="lazy" alt="소비자 앱 홈. OWND 로고, 검색창, 근처 운동 장소 둘러보기, 최신 게시글." /><figcaption><b>홈</b>검색과 근처 장소, 최신 글</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/c-facility.webp" width="720" height="1496" loading="lazy" alt="‘OWND 샘플 피트니스’ 시설 상세. 위치, 종목, 평점 4.7, 운영 시간, 이용 안내." /><figcaption><b>시설 상세</b>정보·평점·이용 안내</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/c-booking.webp" width="720" height="1496" loading="lazy" alt="예약 가능한 시간 화면. 날짜와 인원을 고르고, 하단에 ‘사장님 승인 후 확정 · 결제는 현장에서’ 안내와 예약 신청 버튼." /><figcaption><b>예약 신청</b>사장님 승인 후 확정, 결제는 현장</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/c-log.webp" width="720" height="1496" loading="lazy" alt="마이 운동일지 화면. 운동 기록하기 버튼." /><figcaption><b>운동일지</b>내 운동을 기록해요</figcaption></figure></li>
-        </ul>
-        <h3 class="row-title"><span class="tag tag-demo">샘플 데이터</span> 사장님 앱</h3>
-        <ul class="gallery">
-          <li><figure><img src="/assets/screens/o-dashboard.webp" width="720" height="1496" loading="lazy" alt="사장님 앱 홈. 오늘 순매출 294,000원, 오늘 확정 예약 11건, 승인 대기 24건, 바로가기 목록." /><figcaption><b>대시보드</b>매출·확정·승인 대기를 한눈에</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/o-status.webp" width="720" height="1496" loading="lazy" alt="예약 목록. 승인 대기·예약 확정 상태와 공간, 인원, 금액. 예약자 이름은 일부 가려짐." /><figcaption><b>예약 목록</b>승인 대기부터 처리해요</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/o-timetable.webp" width="720" height="1496" loading="lazy" alt="공간별 예약 시간표. 시간대마다 예약 확정 또는 빈 시간과 가격." /><figcaption><b>시간표</b>공간별 시간과 가격</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/o-detail.webp" width="720" height="1496" loading="lazy" alt="예약 상세. 상태, 공간, 일시, 금액, 이용 확인 버튼(입장 확인·이용 완료·노쇼)." /><figcaption><b>예약 상세</b>이용 완료·노쇼까지 기록</figcaption></figure></li>
-          <li><figure><img src="/assets/screens/o-review.webp" width="720" height="1496" loading="lazy" alt="후기 상세와 사장님 답글 쓰기." /><figcaption><b>후기 답글</b>이용자 후기에 바로 답해요</figcaption></figure></li>
-        </ul>
-      </section>
-
-      <section id="community" class="sec kw" aria-labelledby="h-community">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">05</span> 커뮤니티</p>
-          <h2 id="h-community">운동은 혼자 해도,<br />고르는 건 함께</h2>
-          <p>예약하고 이용한 사람만 후기를 남길 수 있어요. 믿을 수 있는 후기가 다음 사람의 선택을 돕고, 피드·채팅·게시판으로 같이 운동할 사람을 만나요.</p>
-        </div>
-        <div class="duo">
-          <ul class="phones phones-3">
-            <li><figure><img src="/assets/screens/c-feed.webp" width="720" height="1496" loading="lazy" alt="커뮤니티 피드. 예약 방문 인증 배지가 붙은 이용 후기, 별점과 태그, 팔로우 버튼." /><figcaption><b>피드</b>예약 방문 인증 후기</figcaption></figure></li>
-            <li><figure><img src="/assets/screens/c-board.webp" width="720" height="1496" loading="lazy" alt="커뮤니티 게시판. 운동 이야기 글 목록과 글쓰기 버튼." /><figcaption><b>게시판</b>운동 이야기와 모임</figcaption></figure></li>
-            <li><figure><img src="/assets/screens/c-compose.webp" width="720" height="1496" loading="lazy" alt="게시글 쓰기 화면. 주제, 제목, 내용, 사진." /><figcaption><b>글쓰기</b>사진과 함께 올려요</figcaption></figure></li>
-          </ul>
-          <ol class="uses">
-            <li><span class="n">✓</span><div><b>방문 인증 후기</b>실제로 예약하고 이용한 사람만 별점과 후기를 남겨요.</div></li>
-            <li><span class="n">↺</span><div><b>피드 · 팔로우</b>내 활동 지역·관심 종목에 맞는 후기를 먼저 보여 줘요.</div></li>
-            <li><span class="n">✉</span><div><b>채팅 · 게시판</b>같이 운동할 사람을 찾고, 운동 이야기를 나눠요.</div></li>
-          </ol>
-        </div>
-      </section>
-
-      <section id="expand" class="sec kw kw-dark" aria-labelledby="h-expand">
-        <div class="sec-head">
-          <p class="kicker"><span class="k-n">06</span> 사장님 앱의 확장성</p>
-          <h2 id="h-expand">예약 관리에서 시작해<br />컨설팅과 파이낸스까지</h2>
-          <p>사장님 앱에는 예약·매출·가동률·후기가 매일 쌓여요. 이 데이터가 운영 컨설팅과 금융 서비스로 이어지는 기반이 돼요.</p>
-        </div>
-        <div class="duo">
-          <ul class="phones">
-            <li><figure><img src="/assets/screens/o-analytics.webp" width="720" height="1496" loading="lazy" alt="운영 분석. 7일 순매출 추이 막대그래프, 순매출 4,554,000원, 총결제 4,830,000원, 환불 276,000원(샘플 기록)." /><figcaption><b>매출 분석</b>순매출 추이·결제·환불</figcaption></figure></li>
-            <li><figure><img src="/assets/screens/o-ops.webp" width="720" height="1496" loading="lazy" alt="운영 지표. 가동률·취소율 그래프, 확정 예약 179건, 취소 10건, 이용 완료 72건, 노쇼 1건, 예약 퍼널." /><figcaption><b>운영 분석</b>가동률·취소율·예약 퍼널</figcaption></figure></li>
-          </ul>
-          <ol class="road">
-            <li><span class="tag tag-demo">지금 · 샘플 데이터로 시연</span><b>운영 분석</b><span>매출·가동률·취소율·노쇼·예약 퍼널을 한 화면에서 봐요.</span><i class="bar" style="--w:40%"></i></li>
-            <li><span class="tag tag-plan">다음 · 구상</span><b>운영 컨설팅</b><span>지역 수요와 예약 데이터로 가격·시간표·공간 구성을 제안해요.</span><i class="bar" style="--w:70%"></i></li>
-            <li><span class="tag tag-plan">이후 · 구상</span><b>파이낸스</b><span>검증된 예약·매출 흐름을 바탕으로 정산·운영자금·시설 투자를 잇는 금융 서비스로 넓혀요.</span><i class="bar" style="--w:100%"></i></li>
-          </ol>
-        </div>
-        <p class="fine">화면 속 매출·예약 수치는 샘플 데이터예요. 실제 결제·과금은 없어요. 컨설팅·파이낸스는 구상 단계이며, 출시를 약속하지 않아요.</p>
-      </section>
-
-      <section id="status" class="sec statussec" aria-labelledby="h-status">
-        <div class="sec-head">
-          <h2 id="h-status">지금 어디까지 왔냐면요</h2>
-          <p>보기 좋게 꾸미기보다 솔직하게 적었어요.</p>
-        </div>
-        <ul class="status-grid">
-          <li><span class="tag tag-dev">베타 테스트 중</span><b>대화형 검색</b><span>앱에서 동작, 이어지는 질문도 문맥 유지</span></li>
-          <li><span class="tag tag-dev">베타 테스트 중</span><b>공공·민간 함께 보기</b><span>연수구 공유누리 공공시설 + 민간 시설</span></li>
-          <li><span class="tag tag-dev">베타 테스트 중</span><b>예약 신청 · 사장님 승인</b><span>앱 결제 없음, 결제는 현장에서</span></li>
-          <li><span class="tag tag-dev">베타 테스트 중</span><b>커뮤니티</b><span>방문 인증 후기·피드·채팅·게시판</span></li>
-          <li><span class="tag tag-dev">개발 중</span><b>데이터 축적</b><span>검색·예약·후기 기록 구조</span></li>
-          <li><span class="tag tag-demo">샘플 데이터</span><b>사장님 운영 분석</b><span>매출·가동률·예약 퍼널</span></li>
-          <li><span class="tag tag-plan">구상</span><b>컨설팅 · 파이낸스</b><span>운영 데이터 기반 확장</span></li>
-          <li><span class="tag tag-plan">연결 예정</span><b>Android 앱 배포</b><span>이 웹사이트에서 받을 수 있게 준비 중</span></li>
-        </ul>
-        <p class="contact">공개 문의처는 정해지면 여기에 적어 둘게요.</p>
-      </section>
-      <section id="start" class="sec startsec" aria-labelledby="h-start">
-        <div class="start-card">
-          <p class="start-mark" aria-hidden="true">OWND</p>
-          <h2 id="h-start">오운디 시작하기</h2>
-          <p class="start-lead">지금은 인천 연수구에서 베타 테스트 중이에요. 준비되면 이 버튼에서 바로 시작할 수 있어요.</p>
-          <div class="start-buttons">
-            <a class="start-btn start-primary" data-start="web" role="link" aria-disabled="true" tabindex="0"><span>웹에서 시작하기</span><span class="soon">준비 중</span></a>
-            <a class="start-btn" data-start="ios" role="link" aria-disabled="true" tabindex="0"><span>iPhone 앱 받기</span><span class="soon">출시 전</span></a>
-            <a class="start-btn" data-start="android" role="link" aria-disabled="true" tabindex="0"><span>Android 앱 받기</span><span class="soon">출시 전</span></a>
-          </div>
-          <p class="start-note" id="start-note" role="status" aria-live="polite"></p>
+          </nav>
         </div>
       </section>
     </main>
-
-    <footer class="foot">
-      <p><strong>OWND</strong> 오운디 · 인천 연수구에서 베타 테스트 중인 서비스예요.</p>
-      <details>
-        <summary>이미지·글꼴 출처</summary>
-        <ul>
-          <li>스포츠 사진 4장(축구장, 클라이밍, 클레이 코트, 실내 수영장): Unsplash, Unsplash License. 분위기 연출용이며 오운디에 등록된 실제 시설 사진이 아니에요.</li>
-          <li>앱 화면: 오운디 소비자 앱·사장님 앱을 실제 기기에서 캡처했어요. 사장님 앱의 예약·매출 수치와 ‘OWND 샘플’ 시설은 샘플 데이터예요. 검색 결과의 장소 정보는 공유누리(행정안전부)와 카카오 장소 정보에서 왔어요.</li>
-          <li>지도: 앱 화면 속 지도는 카카오 지도예요. 이 사이트의 위치 도식은 직접 그린 그림이에요.</li>
-          <li>글꼴: Archivo, Geist, Pretendard (모두 SIL Open Font License 1.1)</li>
-        </ul>
-      </details>
-    </footer>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>데이터와 분석 · OWND 자세히 보기</title>
+    <meta name="description" content="검색부터 후기까지 무엇을 기록하고, 그 기록으로 어떤 지표를 다시 계산하는지 설명해요." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
+    <link rel="stylesheet" href="/src/guide.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
+      <a class="top-back" href="/#start">목차</a>
+    </header>
+    <div class="g-wrap">
+      <nav class="g-toc" aria-label="자세히 보기 목차"><p>자세히 보기</p><ol><li><a href="/guide/find.html"><span>01</span>대화형 검색</a></li><li><a href="/guide/request.html"><span>02</span>신청과 승인</a></li><li><a href="/guide/review.html"><span>03</span>이용과 후기</a></li><li><a href="/guide/talk.html"><span>04</span>소통과 커뮤니티</a></li><li><a href="/guide/life.html"><span>05</span>운동 생활</a></li><li><a href="/guide/ops.html"><span>06</span>사장님 운영</a></li><li><a href="/guide/data.html" aria-current="page"><span>07</span>데이터와 분석</a></li></ol></nav>
+      <main class="g-main">
+        <p class="g-kicker">07 · 자세히 보기</p>
+        <h1>데이터와 분석</h1>
+        <p class="g-lead">검색부터 후기까지 무엇을 기록하고, 그 기록으로 어떤 지표를 다시 계산하는지 설명해요.</p>
+        <section class="g-sec"><h2>왜 결과만 남기지 않나요</h2><p>예약 결과만 남기면 ‘왜 이 시설을 골랐는지’, ‘수요는 있었는데 자리가 없었는지’, ‘가격을 바꾼 뒤 무엇이 달라졌는지’ 알 수 없어요. 그래서 다섯 층의 기록을 이어 둬요.</p><ol><li>의도: 대화, 질문, 조건 버전</li><li>판단 환경: 검색 실행, 그때 적용된 조건, 후보와 순위, 공급 요약</li><li>행동: 실제 노출, 클릭, 상세 보기, 시간 선택, 신청 시작</li><li>거래와 이용: 신청, 승인·거절·만료·취소, 이용 완료·노쇼, 후기</li><li>분석: 시설별 일별 지표, 지역×종목×시간대 지표, 후기 항목 판단, 변경 전후 비교</li></ol></section><section class="g-sec"><h2>데이터가 이어지는 길</h2><figure class="code"><pre><code class="lang-text">Google 로그인 → Firebase 토큰 → 오운디 주체(이용자 / 사장님)
+사용자 질문 → 대화 / 발화 → 조건 버전
+오운디 시설 + 저장된 공공 목록 + 카카오 장소
+  → AI 점수 → 장소 후보·순위·공급 요약
+  → 실제 노출 / 클릭 / 상세 / 신청 시작 이벤트
+  → 연결 시설의 시간 선택 → 승인 대기
+  → 사장님 권한 확인 → 예약 확정 또는 거절
+  → 이용 확인 → 이용 완료 / 노쇼
+  → 후기 원문 → 항목별 판단
+  → 원천 기록으로 다시 집계 → 사장님 분석 · 지역 수요</code></pre></figure><p>신청한 예약은 어느 검색 실행에서 왔는지 기억하기 때문에 ‘검색 → 후보 → 예약 → 이용 완료’를 한 줄로 이어서 볼 수 있어요.</p></section><section class="g-sec"><h2>현재 값과 당시 값을 나눠요</h2><p>시설 이름과 가격은 바뀌어요. 그래서 예약은 당시 가격·금액·시작 시각·취소 규정 버전을, 검색은 당시 조건 버전·점수·순위·공급 요약을 고정해요. 과거 예약을 오늘 가격으로, 과거 검색을 오늘 조건으로 다시 해석하지 않아요.</p><p>모르는 값은 0이나 ‘아니요’가 아니에요. 가격이 없으면 무료가 아니라 ‘없음’, 좌표가 없으면 위도 0이 아니라 ‘없음’, 판단이 어려운 후기는 부정이 아니라 ‘검토 필요’예요. 표본이 부족한 지표는 값을 비워 둬요.</p></section><section class="g-sec"><h2>행동 이벤트</h2><p>앱은 이벤트마다 고유 ID를 붙여 최대 200개씩 보내요. 이미 받은 ID는 중복으로 걸러요. 새 이벤트는 로그인 사용자, 세션, 검색 실행의 주인, 후보가 그 실행의 것인지, 시설·슬롯 관계와 시각을 확인해요. 맞지 않는 이벤트는 정상 기록에 섞지 않고 사유와 함께 따로 격리해요.</p><p>‘노출’은 서버가 후보를 만들었다는 뜻이 아니라 실제로 화면에 보였다는 뜻이에요. 클릭률의 분모도 그 실제 노출이에요.</p></section><section class="g-sec"><h2>지표는 원천에서 다시 계산해요</h2><p>시설별 일별 지표와 지역×종목×시간대 지표는 원천 기록을 읽어 날짜별로 다시 계산해 저장해요. 집계 기준이 바뀌어도 원천이 남아 있어서 다시 만들 수 있어요.</p><p>기간 비율은 ‘하루 비율의 평균’이 아니라 ‘분자 합 ÷ 분모 합’으로 계산해요. 예를 들어 하루는 2번 노출에 1번 클릭, 다른 날은 100번 노출에 1번 클릭이면, 하루 비율 평균은 25.5%지만 실제 클릭률은 2/102 ≈ 1.96%예요.</p><ul><li>클릭률: 클릭한 (실행×시설) ÷ 실제 노출된 (실행×시설)</li><li>가동률: 확정·완료 예약이 있는 슬롯 시간 ÷ 열린 슬롯 시간</li><li>평점: 게시된 후기 평점 합 ÷ 후기 수(최소 표본 적용)</li><li>지역 0건률: 결과가 0건인 시간표 검색 ÷ 지역 시간표 검색</li></ul><p>시설별 분석은 ‘이 시설’의 노출·클릭·예약·이용을, 지역 분석은 ‘지역 전체’의 검색·0건·공급 부족을 봐요. 한 시설의 노출을 지역 전체 수요로 부풀리지 않아요.</p></section><section class="g-sec"><h2>변경 전후 비교</h2><p>가격이나 운영 방식을 바꾼 날을 빼고, 앞뒤로 같은 길이(7일 단위)를 같은 공간·시간대 기준으로 비교해요. 기간이 덜 찼거나, 공급이 20% 넘게 달라졌거나, 표본이 작으면 경고를 붙여요. 날씨·계절·행사 같은 요인까지 통제한 실험은 아니라서, 차이를 변경의 효과라고 단정하지 않아요.</p></section><section class="g-sec"><h2>솔직하게 덧붙이면</h2><ul><li>사장님 화면의 분석 예시는 앱 안의 샘플 모드예요. 기기 안의 읽기 전용 가상 시설이라 실제 계정·운영 데이터와 섞이지 않아요.</li><li>확정 예약 수·전환율 같은 일부 지표는 아직 결제 기록을 기준으로 계산하는 코드가 남아 있어요. 앱 결제가 없는 승인제에 맞춰 ‘신청·승인·이용·결제’를 나눠 세도록 정비할 계획이에요.</li><li>기록을 쌓는다고 개인별 자동 추천 학습이 이미 이뤄지는 건 아니에요.</li></ul></section>
+        <nav class="g-pn" aria-label="이전·다음"><a class="pn pn-prev" href="/guide/ops.html"><small>이전</small>사장님 운영</a><a class="pn pn-next" href="/#start"><small>처음으로</small>목차로 돌아가기</a></nav>
+        <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener"><span>Android 다운로드</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg></a>
+      </main>
+    </div>
+  </body>
+</html>

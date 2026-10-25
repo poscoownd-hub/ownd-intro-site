@@ -1,31 +1,29 @@
-// 54비트 마스터 타임라인(가상 120 BPM, 1비트 = 0.5초)과 순수 함수 보간 도구.
-// 모든 연출 값은 시간 t(비트)만으로 계산한다. 상태를 프레임 사이에 남기지 않는다.
+// 120비트 마스터 타임라인(1비트 = 0.7초, 전체 84초)과 순수 함수 보간 도구.
+// 음악은 쓰지 않는다. 모든 연출 값은 시간 t(비트)만으로 계산한다. 상태를 프레임 사이에 남기지 않는다.
 
-export const BEATS = 54
-export const SEC_PER_BEAT = 0.5
+export const BEATS = 120
+export const SEC_PER_BEAT = 0.7
+export const DURATION = BEATS * SEC_PER_BEAT
 
 export const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x))
 /** a~b 구간에서의 진행도(0~1) */
-export const seg = (t: number, a: number, b: number) => clamp((t - a) / (b - a))
+export const seg = (t: number, a: number, b: number) => (b <= a ? (t >= b ? 1 : 0) : clamp((t - a) / (b - a)))
 export const lerp = (a: number, b: number, p: number) => a + (b - a) * p
-export const inRange = (t: number, a: number, b: number) => t >= a && t < b
 
 export const ease = {
   linear: (p: number) => p,
   out: (p: number) => 1 - Math.pow(1 - p, 3),
   in: (p: number) => p * p * p,
   inOut: (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2),
+  /** 화면 전환(앱 내비게이션 느낌): 빠르게 출발해 부드럽게 멈춤 */
+  nav: (p: number) => 1 - Math.pow(1 - p, 4),
   /** 끝값을 정확히 1로 맞추는 살짝 넘치는 곡선 */
-  back: (p: number) => {
-    const c1 = 1.70158
-    const c3 = c1 + 1
-    return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2)
-  },
+  back: (p: number) => 1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2),
 }
 
 export type SpringOpts = { freq?: number; damping?: number }
 
-/** 감쇠 진동자의 계단 응답(닫힌 형태). tau는 비트, 반환은 0에서 시작해 1로 수렴 */
+/** 감쇠 진동자의 계단 응답(닫힌 형태). tau는 비트, 반환은 0에서 시작해 1로 수렴(작은 overshoot) */
 export function springStep(tau: number, { freq = 1.5, damping = 0.74 }: SpringOpts = {}): number {
   if (tau <= 0) return 0
   const s = tau * SEC_PER_BEAT
@@ -35,6 +33,12 @@ export function springStep(tau: number, { freq = 1.5, damping = 0.74 }: SpringOp
   const wd = w * Math.sqrt(1 - z * z)
   return 1 - Math.exp(-z * w * s) * (Math.cos(wd * s) + ((z * w) / wd) * Math.sin(wd * s))
 }
+
+export type Rect = { x: number; y: number; w: number; h: number }
+export const rect = (x: number, y: number, w: number, h: number): Rect => ({ x, y, w, h })
+export const lerpRect = (a: Rect, b: Rect, p: number): Rect => ({ x: lerp(a.x, b.x, p), y: lerp(a.y, b.y, p), w: lerp(a.w, b.w, p), h: lerp(a.h, b.h, p) })
+export const centered = (cx: number, cy: number, w: number, h: number): Rect => ({ x: cx - w / 2, y: cy - h / 2, w, h })
+export const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
 
 /** 목표가 여러 번 바뀌는 값 = 변화마다 스프링 하나를 더한 합. 시간의 순수 함수 */
 export function spring(t: number, base: number, changes: ReadonlyArray<readonly [number, number]>, opts?: SpringOpts): number {
@@ -47,127 +51,33 @@ export function spring(t: number, base: number, changes: ReadonlyArray<readonly 
   return v
 }
 
-export type Rect = { x: number; y: number; w: number; h: number }
-export const rect = (x: number, y: number, w: number, h: number): Rect => ({ x, y, w, h })
-export const lerpRect = (a: Rect, b: Rect, p: number): Rect => ({ x: lerp(a.x, b.x, p), y: lerp(a.y, b.y, p), w: lerp(a.w, b.w, p), h: lerp(a.h, b.h, p) })
-export const centered = (cx: number, cy: number, w: number, h: number): Rect => ({ x: cx - w / 2, y: cy - h / 2, w, h })
-export const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
-
-// ===== 재생 속도표 =====
-// 비트는 "장면 진행"의 단위이고, 실제 시간은 아래 표가 정한다.
-// [시작 비트, 끝 비트, 초]. 시작 = 끝이면 그 장면에서 잠시 멈춰 보여 주는 구간.
-// 커서 이동·타이핑·길게 누르기는 실제 손 속도에, 읽어야 하는 화면은 머무름에 맞췄다.
-const PACE_BASE: ReadonlyArray<readonly [number, number, number]> = [
-  // OPEN
-  [0, 0, 1.0], [0, 1.6, 1.4], [1.6, 3.2, 1.5], [3.2, 4.1, 1.0], [4.1, 5.4, 1.1],
-  [5.4, 8, 2.2], [8, 9.6, 1.5], [9.6, 10.5, 1.1], [10.5, 12, 1.4],
-  // BUILD
-  [12, 13, 0.9], [13, 15, 2.2], [15, 16.45, 1.8], [16.45, 18, 1.6], 
-  // GLASS
-  [18, 18.8, 0.9], [18.8, 20.4, 1.8], [20.4, 21.9, 1.7], [21.9, 22.4, 0.9], [22.4, 23.4, 1.8], [23.4, 24.4, 1.4], 
-  // STAGE
-  [24.4, 25.4, 1.1], [25.4, 26.3, 1.1], [26.3, 27.4, 1.2], [27.4, 28.8, 1.8], [28.8, 29.9, 1.4],
-  [29.9, 30.2, 0.7], [30.2, 30.8, 0.9], [30.8, 31.6, 1.2], [31.6, 32.5, 1.0], [32.5, 34, 1.4],
-  // DETAIL
-  [34, 35.9, 2.0], [35.9, 37.9, 3.2], [37.9, 39.4, 1.6], [39.4, 40.7, 1.6], [40.7, 41.5, 1.0], [41.5, 42, 0.5],
-  // JOURNEY
-  [42, 43.2, 1.1], [43.2, 45.85, 4.6], [45.85, 47.6, 3.2], [47.6, 48.2, 0.7],
-  // WALL (범람은 약 0.3초, 검정은 한 박자)
-  [48.2, 48.8, 0.3], [48.8, 49.8, 0.5], [49.8, 51.7, 2.75], [51.7, 51.7, 8.0], [51.7, 52.5, 1.0], [52.5, 53.55, 1.2], [53.55, 54, 0.8],
-]
-/** 전체 빠르기. 1 = 위 표 그대로(약 87초). 0.65 ≈ 57초 */
-export const SPEED = 0.65
-// 범람(검정이 화면을 덮는 순간, 약 0.3초)과 끝의 "이제 시작해 볼까요?" 멈춤(8초)은 빠르기와 무관하게 유지
-const FIXED = (p: readonly [number, number, number]) => (p[0] === 48.2 && p[1] === 48.8) || (p[0] === 51.7 && p[1] === 51.7)
-export const PACE: ReadonlyArray<readonly [number, number, number]> = PACE_BASE.map((p) => (FIXED(p) ? p : ([p[0], p[1], p[2] * SPEED] as const)))
-export const DURATION = PACE.reduce((a, p) => a + p[2], 0)
-
-// 재생 시간 → 비트를 매듭(구간 경계)마다 이어 붙이되, 단조 3차 보간(Fritsch–Carlson)으로
-// 속도가 구간 경계에서 갑자기 바뀌지 않게 한다. 멈춤 구간 앞뒤에서는 자연스럽게 감속·가속한다.
-const KNOTS = (() => {
-  const xs = [0]
-  const ys = [PACE[0][0]]
-  let acc = 0
-  for (const [, b1, d] of PACE) {
-    acc += d
-    xs.push(acc)
-    ys.push(b1)
-  }
-  const n = xs.length
-  const dk = Array.from({ length: n - 1 }, (_, i) => (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]))
-  const m = new Array<number>(n).fill(0)
-  for (let i = 1; i < n - 1; i++) m[i] = dk[i - 1] * dk[i] <= 0 ? 0 : (dk[i - 1] + dk[i]) / 2
-  m[0] = 0 // 시작·끝(= 처음 장면으로 이어지는 순간)은 정지 상태
-  m[n - 1] = 0
-  for (let i = 0; i < n - 1; i++) {
-    if (dk[i] === 0) {
-      m[i] = 0
-      m[i + 1] = 0
-      continue
-    }
-    const a = m[i] / dk[i]
-    const b = m[i + 1] / dk[i]
-    const h = Math.hypot(a, b)
-    if (h > 3) {
-      m[i] = (3 * a * dk[i]) / h
-      m[i + 1] = (3 * b * dk[i]) / h
-    }
-  }
-  return { xs, ys, m }
-})()
-
-/** 실제 재생 시간(초) → 비트. 시간의 순수 함수 */
+/** 실제 재생 시간(초) → 비트(선형). 시간의 순수 함수 */
 export function beatAt(sec: number): number {
   const s = ((sec % DURATION) + DURATION) % DURATION
-  const { xs, ys, m } = KNOTS
-  let i = 0
-  while (i < xs.length - 2 && s >= xs[i + 1]) i++
-  const h = xs[i + 1] - xs[i]
-  const u = h > 0 ? (s - xs[i]) / h : 0
-  const u2 = u * u
-  const u3 = u2 * u
-  return (2 * u3 - 3 * u2 + 1) * ys[i] + (u3 - 2 * u2 + u) * h * m[i] + (-2 * u3 + 3 * u2) * ys[i + 1] + (u3 - u2) * h * m[i + 1]
+  return s / SEC_PER_BEAT
 }
-/** 비트 → 그 비트에 처음 도달하는 재생 시간(초) */
+/** 비트 → 재생 시간(초) */
 export function secAt(beat: number): number {
-  let acc = 0
-  for (const [b0, b1, d] of PACE) {
-    if (b1 > b0 && beat >= b0 && beat < b1) {
-      // 보간 곡선 위에서 이분 탐색
-      let lo = acc
-      let hi = acc + d
-      for (let k = 0; k < 40; k++) {
-        const mid = (lo + hi) / 2
-        if (beatAt(mid) < beat) lo = mid
-        else hi = mid
-      }
-      return hi
-    }
-    if (b1 === b0 && beat === b0) return acc
-    acc += d
-  }
-  return 0
+  return beat * SEC_PER_BEAT
 }
 
-/** 영상의 장(챕터). still = 동작 줄이기 모드에서 보여 줄 정지 장면 */
-export const CHAPTERS = [
-  { id: "intro", label: "오운디", from: 0, to: 12, still: 9.6 },
-  { id: "search", label: "대화형 검색", from: 12, to: 24.4, still: 18 },
-  { id: "info", label: "공공·민간", from: 24.4, to: 34, still: 26.3 },
-  { id: "route", label: "예약·승인", from: 34, to: 42, still: 41.5 },
-  { id: "go", label: "함께 운동", from: 42, to: 54, still: 47.6 },
-] as const
-
-/** 영상 안 자막(키노트식 카드). 비트 구간 */
-export type Caption = { from: number; to: number; kicker: string; title: string; body: string; tag?: "demo" | "dev" | "plan"; tagText?: string; still: number; cta?: boolean }
+/**
+ * 영상 안 설명. 비트 구간마다 휴대폰 옆(side: 왼쪽 l / 오른쪽 r)의 알맞은 높이(at: 앱 화면 y, 390×844 기준)에 놓이고,
+ * 가는 선으로 휴대폰의 해당 부분을 가리킨다. 좁은 화면에서는 휴대폰 아래에 놓인다.
+ */
+export type Caption = { from: number; to: number; side: "l" | "r"; at: number; kicker: string; title: string; body: string; cta?: boolean }
 export const CAPTIONS: Caption[] = [
-  { from: 1.6, to: 8, kicker: "OWND · 오운디", title: "운동할 곳,\n이제 말로 찾아요", body: "인천 연수구(송도 포함)에서 먼저 시작해요.", still: 3.2 },
-  { from: 8, to: 12, kicker: "공공과 민간", title: "공공·민간 시설을\n한 화면에", body: "공공 체육시설과 동네 민간 시설, 커뮤니티와 사장님 앱까지 하나로 이어져요.", still: 9.6 },
-  { from: 12, to: 18.8, kicker: "대화형 검색", title: "말하듯 찾으면 돼요", body: "한마디가 지역·종목·공공/민간·거리 조건으로 바뀌어요.", tag: "demo", tagText: "실제 앱 화면", still: 18 },
-  { from: 18.8, to: 24.4, kicker: "데이터 축적", title: "검색할수록\n데이터가 쌓여요", body: "대화·조건·후보·선택이 기록돼 더 나은 검색과 사장님의 운영 근거가 돼요.", tag: "demo", tagText: "시연 컨트롤", still: 22.9 },
-  { from: 24.4, to: 31.6, kicker: "소비자 앱", title: "찾고, 비교하고,\n바로 신청", body: "공공시설은 출처와 확인 시각을, 연결 시설은 빈 시간과 후기를 보여 줘요.", tag: "demo", tagText: "실제 앱 화면", still: 26.3 },
-  { from: 31.6, to: 38, kicker: "공공과 민간", title: "필요한 것만\n한눈에", body: "이름·위치·종목·공공/민간 구분과 출처를 한 화면에 모았어요.", tag: "demo", tagText: "샘플 데이터", still: 35.9 },
-  { from: 38, to: 42, kicker: "사장님 앱", title: "신청하면\n사장님이 승인해요", body: "승인되면 확정, 승인이 없으면 시작 30분 뒤 자동 만료돼요. 결제는 현장에서.", tag: "dev", tagText: "베타 테스트 중", still: 41.5 },
-  { from: 42, to: 48.2, kicker: "커뮤니티", title: "운동하고,\n함께 나눠요", body: "후기·피드·채팅·게시판이 다음 사람의 선택을 돕고, 사장님에겐 운영 데이터가 돼요.", tag: "dev", tagText: "베타 테스트 중", still: 47.6 },
-  { from: 50.3, to: 52.5, kicker: "OWND · 오운디", title: "이제 시작해\n볼까요?", body: "웹과 앱으로 곧 만나요.", still: 51.6, cta: true },
+  { from: 0, to: 8, side: "l", at: 300, kicker: "OWND · 오운디", title: "동네 운동,\n대화형 검색으로 찾고 바로 신청", body: "이용자는 소비자 화면, 시설은 사장님 화면을 써요." },
+  { from: 8, to: 20, side: "r", at: 92, kicker: "대화형 검색", title: "한 번 묻고,\n이어서 또 물어요", body: "‘연수구에서 풋살할 곳’ 다음 ‘송도 쪽이면 좋겠어’. 앞 질문까지 문맥으로 이어 순서를 다시 정해요." },
+  { from: 20, to: 32, side: "l", at: 520, kicker: "공공·민간 장소", title: "공공은 기관 예약,\n연결 시설은 앱 신청", body: "공공시설은 공유누리 출처와 기관 예약 경로를 안내해요." },
+  { from: 32, to: 40, side: "r", at: 226, kicker: "시설 상세", title: "평점·운영시간·\n이용 안내를 한 화면에", body: "궁금하면 여기서 시설에 바로 문의할 수 있어요." },
+  { from: 40, to: 52, side: "l", at: 440, kicker: "예약 신청", title: "날짜·인원·시간을\n고르면 신청 준비 끝", body: "풋살장 A는 1회 대관가, 풋살장 B 오전은 1인 가격이에요. 여기선 대관으로 신청해요." },
+  { from: 52, to: 60, side: "r", at: 300, kicker: "승인 대기", title: "결제가 아니라\n‘승인 대기’예요", body: "앱에서 돈을 받지 않아요. 사장님이 승인해야 확정되고, 시작 30분 뒤까지 승인이 없으면 만료돼요." },
+  { from: 60, to: 72, side: "r", at: 300, kicker: "사장님 화면", title: "같은 신청이\n사장님 목록에 도착", body: "사장님이 열어 보고 승인해요. 대관은 한 팀을 승인하면 같은 시간의 다른 신청이 자동 거절돼요." },
+  { from: 72, to: 80, side: "l", at: 200, kicker: "이용자 화면", title: "알림으로 받고,\n예약 확정 확인", body: "앱이 켜져 있거나 백그라운드일 때 알려요. 앱을 완전히 닫았다면 다시 열 때 알림함에서 확인해요." },
+  { from: 80, to: 84, side: "r", at: 470, kicker: "사장님 화면", title: "이용 시간이 지나면\n이용 완료 기록", body: "사장님이 입장 확인·이용 완료·노쇼를 기록해요." },
+  { from: 84, to: 89, side: "l", at: 400, kicker: "이용 이후", title: "이용 완료가\n확인돼야 후기", body: "예약 확정과 이용 완료는 달라요. 이용 완료가 기록된 예약에만 후기를 쓸 수 있어요." },
+  { from: 89, to: 100, side: "l", at: 300, kicker: "커뮤니티", title: "방문 인증 후기,\n게시판, 1:1 채팅", body: "후기는 피드에 ‘예약 방문 인증’으로 올라가요. 게시판 글은 후기와 별개이고, 작성자와 채팅할 수 있어요." },
+  { from: 100, to: 112, side: "r", at: 300, kicker: "운영 데이터", title: "쌓인 기록이\n운영 근거가 돼요", body: "검색·신청·이용·후기 기록을 사장님 분석으로 모아요." },
+  { from: 112, to: 120, side: "l", at: 380, kicker: "시작하기", title: "Android 앱으로\n시작해요", body: "웹사이트에서 APK를 받아 설치해요. 같은 앱에서 이용자·사장님을 골라 시작해요.", cta: true },
 ]

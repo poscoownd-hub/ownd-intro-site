@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>이용과 후기 · OWND 자세히 보기</title>
+    <meta name="description" content="예약 확정, 이용 완료, 후기는 서로 다른 사실이에요. 각각이 어떻게 기록되고 후기가 어떻게 판단 데이터가 되는지 설명해요." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- 스타일이 적용되기 전(개발 서버는 JS로 CSS를 넣음)에 꾸밈 없는 아이콘·링크가 잠깐 보이지 않도록 가린다. 스타일 파일이 body를 다시 보이게 한다 -->
+    <style>body{opacity:0}</style>
+    <link rel="stylesheet" href="/src/guide.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="OWND 처음으로"><span class="brand-mark">OWND</span><span class="brand-ko">오운디</span></a>
+      <a class="top-back" href="/#start">목차</a>
+    </header>
+    <div class="g-wrap">
+      <nav class="g-toc" aria-label="자세히 보기 목차"><p>자세히 보기</p><ol><li><a href="/guide/find.html"><span>01</span>대화형 검색</a></li><li><a href="/guide/request.html"><span>02</span>신청과 승인</a></li><li><a href="/guide/review.html" aria-current="page"><span>03</span>이용과 후기</a></li><li><a href="/guide/talk.html"><span>04</span>소통과 커뮤니티</a></li><li><a href="/guide/life.html"><span>05</span>운동 생활</a></li><li><a href="/guide/ops.html"><span>06</span>사장님 운영</a></li><li><a href="/guide/data.html"><span>07</span>데이터와 분석</a></li></ol></nav>
+      <main class="g-main">
+        <p class="g-kicker">03 · 자세히 보기</p>
+        <h1>이용과 후기</h1>
+        <p class="g-lead">예약 확정, 이용 완료, 후기는 서로 다른 사실이에요. 각각이 어떻게 기록되고 후기가 어떻게 판단 데이터가 되는지 설명해요.</p>
+        <section class="g-sec"><h2>예약 확정은 이용 완료가 아니에요</h2><p>사장님은 이용 확인으로 입장 확인(CHECKED_IN), 이용 완료(COMPLETED), 노쇼(NO_SHOW)를 따로 기록해요. 입장 확인은 시작 한 시간 전부터, 이용 완료와 노쇼는 시작 이후에 기록할 수 있어요.</p><p>시간이 지났다는 이유만으로 이용했다고 처리하지 않아요. 이용 완료가 기록돼야 예약도 COMPLETED가 되고, 그때부터 후기를 쓸 수 있어요.</p></section><section class="g-sec"><h2>후기가 저장되는 순서</h2><ol><li>본인 예약인지, 예약과 이용 기록이 모두 완료인지, 이미 쓴 후기가 없는지 확인해요(예약 하나에 후기 하나).</li><li>별점·태그·본문·사진(최대 4장, 본인이 올린 것만)을 검증해요.</li><li>본문을 저장하고 후기와 중복 방지 기록을 데이터베이스에 남겨요.</li><li>그다음 항목별 판단을 해요. 후기 하나가 바닥·주차·청결 같은 여러 항목 판단을 가질 수 있어요.</li></ol></section><section class="g-sec"><h2>항목별 판단은 원문을 덮어쓰지 않아요</h2><p>판단 결과(review_decisions)는 항목, 긍정·부정, 강도, 신뢰도, 판단 모델 버전, 질문 버전을 따로 저장해요. 원문은 그대로 두기 때문에 판단 기준이 바뀌면 다시 판단할 수 있어요.</p><p>신뢰도가 낮거나 판단이 어려우면 ‘검토 필요(NEEDS_REVIEW)’로 남겨요. 판단기가 응답하지 않을 때도 부정 점수를 만들어 내지 않고 ‘판단 보류’ 행을 남겨요. 모르는 것은 0점이나 부정이 아니라 ‘모름’이에요.</p></section><figure class="code"><figcaption>reviews.ts — 후기 항목 판단(발췌)</figcaption><pre><code class="lang-typescript">rows = out.decisions
+  .filter((d) =&gt; allowed.has(d.aspect))
+  .map((d) =&gt; ({
+    reviewId: review.reviewId,
+    aspect: d.aspect,
+    stance: d.stance,
+    intensity: d.intensity,
+    confidence: d.confidence,
+    judgeModel: out.meta.judgeVersion,
+    questionSchemaVersion: out.meta.questionSchemaVersion,
+    reviewState: d.confidence &lt; ctx.config.reviewConfidenceThreshold || d.stance === &quot;UNDETERMINED&quot; ? &quot;NEEDS_REVIEW&quot; : &quot;ACCEPTED&quot;,
+  }))</code></pre></figure><section class="g-sec"><h2>피드와 사장님 답글</h2><p>후기는 피드에 ‘예약 방문 인증’으로 올라가고, 사장님은 이용 완료가 확인된 후기에 답글을 달 수 있어요. 게시판 글은 이용 인증이 없는 별개의 글이라 시설 평점에 섞지 않아요.</p></section>
+        <nav class="g-pn" aria-label="이전·다음"><a class="pn pn-prev" href="/guide/request.html"><small>이전</small>신청과 승인</a><a class="pn pn-next" href="/guide/talk.html"><small>다음</small>소통과 커뮤니티</a></nav>
+        <a class="dl-btn" href="https://ownd-download-309487860458-apne2.s3.ap-northeast-2.amazonaws.com/ownd.apk" download="ownd.apk" rel="noopener"><span>Android 다운로드</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14" /></svg></a>
+      </main>
+    </div>
+  </body>
+</html>
